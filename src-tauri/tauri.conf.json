@@ -54,8 +54,8 @@
     "windows": [
       {
         "title": "Tauri Wallet",
-        "width": 800,
-        "height": 600,
+        "width": 1280,
+        "height": 768,
         "resizable": true,
         "fullscreen": false
       }
