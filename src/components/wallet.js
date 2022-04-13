@@ -3,7 +3,7 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 import { Space } from "antd";
 import { useState } from "react";
 import { IconButton, Tooltip } from "@mui/material";
-import { AddBox, Archive, ContentCopy, DeleteForever, FileOpen, Inbox, Key } from "@mui/icons-material";
+import { AddBox, AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 
 const schemaAddress = {
   type: "string",
@@ -43,24 +43,29 @@ export function Wallet() {
         <ContentCopy />
       </IconButton>
     </Tooltip>
+    <Tooltip title="View in Explorer">
+      <IconButton>
+        <Explore />
+      </IconButton>
+    </Tooltip>
     <Tooltip title="Copy Private Key">
       <IconButton>
-        <Key />
+        <LockOpen />
       </IconButton>
     </Tooltip>
     <Tooltip title="Create Address">
       <IconButton>
-        <AddBox />
+        <AddCard />
       </IconButton>
     </Tooltip>
-    <Tooltip title="Remove Address">
+    <Tooltip title="Delete Address">
       <IconButton>
         <DeleteForever />
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Private Key">
       <IconButton>
-        <Inbox />
+        <Key />
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Keystore File">
@@ -70,7 +75,7 @@ export function Wallet() {
     </Tooltip>
     <Tooltip title="Export Keystore File">
       <IconButton>
-        <Archive />
+        <Download />
       </IconButton>
     </Tooltip>
     
