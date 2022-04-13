@@ -1,4 +1,3 @@
-
 const initalTemplate = {
   current: {
     rpc: {
