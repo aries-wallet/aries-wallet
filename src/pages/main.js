@@ -1,5 +1,6 @@
 import { Divider } from "@mui/material";
 import { Contract } from "../components/contract";
+import { Log } from "../components/log";
 import { Rpc } from "../components/rpc";
 import { Wallet } from "../components/wallet";
 
@@ -14,6 +15,8 @@ export function Main() {
       <Contract />
     </div>
     <Divider />
-    <div style={{width: '100%', height: '10vh'}} >logs</div>
+    <div style={{width: '100%', height: '10vh'}} >
+      <Log />
+    </div>
   </div>
 }

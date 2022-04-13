@@ -70,15 +70,15 @@ export function Contract() {
     <Collapse defaultActiveKey={['1']}>
       <Panel header="1. symbol" key="1">
         <p>Hello</p>
-        <Button variant="contained">Read</Button>
+        <Button variant="outlined">Read</Button>
       </Panel>
       <Panel header="2. decimals" key="2">
         <p>Hello</p>
-        <Button variant="contained">Read</Button>
+        <Button variant="outlined">Read</Button>
       </Panel>
       <Panel header="3. name" key="3">
         <p>Hello</p>
-        <Button variant="contained">Read</Button>
+        <Button variant="outlined">Read</Button>
       </Panel>
     </Collapse>
     </Paper>
