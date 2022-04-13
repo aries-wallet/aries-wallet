@@ -3,7 +3,8 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 import { Space } from "antd";
 import { useState } from "react";
 import { IconButton, Tooltip } from "@mui/material";
-import { AddCircle, CopyAll, Delete, DeleteForever, RemoveCircle } from "@mui/icons-material";
+import { AddCircle, CopyAll, DeleteForever } from "@mui/icons-material";
+import { writeFile, Dir, createDir } from "@tauri-apps/api/fs";
 
 const schemaNetwork = {
   type: "string",
@@ -52,7 +53,14 @@ export function Rpc() {
       </IconButton>
     </Tooltip>
     <Tooltip title="Add Rpc">
-      <IconButton>
+      <IconButton onClick={async ()=>{
+        console.log('click');
+        await createDir('logs', { dir: Dir.App, recursive: true});
+        await writeFile({
+          path: 'logs/test.log',
+          contents: 'Hello world',
+        }, { dir: Dir.App });
+      }}>
         <AddCircle />
       </IconButton>
     </Tooltip>

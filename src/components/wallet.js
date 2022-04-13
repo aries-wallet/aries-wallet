@@ -2,7 +2,7 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { Space } from "antd";
 import { useState } from "react";
-import { IconButton, Tooltip } from "@mui/material";
+import { IconButton, TextField, Tooltip } from "@mui/material";
 import { AddBox, AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 
 const schemaAddress = {
@@ -38,6 +38,7 @@ export function Wallet() {
       onChange={v=>setNetwork(v.data)}
       schema={schemaAddress}
     />
+    <TextField label="Balance" size="small" value={123423423.134} disabled style={{width: '120px'}} />
     <Tooltip title="Copy Address">
       <IconButton>
         <ContentCopy />

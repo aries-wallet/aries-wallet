@@ -66,7 +66,7 @@ export function Contract() {
       <Button variant="outlined" >Read Contract</Button>
       <Button>Write Contract</Button>
     </Space>
-    <Paper style={{width: '100%', marginTop: "20px"}} elevation={20} >
+    <Paper style={{width: '100%', marginTop: "20px"}} elevation={6} >
     <Collapse defaultActiveKey={['1']}>
       <Panel header="1. symbol" key="1">
         <p>Hello</p>
