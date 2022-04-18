@@ -28,6 +28,7 @@ export function verifyPassword(pwd) {
     }
   } catch (error) {
     console.error(error);
+    return false;
   }
 }
 

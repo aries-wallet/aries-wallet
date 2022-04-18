@@ -1,6 +1,6 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
-import { Space } from "antd";
+import { message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, TextField, Tooltip, Typography } from "@mui/material";
 import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
@@ -8,6 +8,7 @@ import { getDb } from "../utils/db";
 import { withThemeCreator } from "@mui/styles";
 import useLog from "../hooks/useLog";
 import { createAddress } from "../utils/crypto";
+import { clipboard } from "@tauri-apps/api";
 
 const modalStyle = {
   position: 'absolute',
@@ -92,7 +93,8 @@ export function Wallet() {
     <TextField label="Balance" size="small" value={123423423.134} disabled style={{width: '120px'}} />
     <Tooltip title="Copy Address">
       <IconButton size="small" onClick={()=>{
-        addLog('copy address');
+        addLog('copy address', current.address);
+        clipboard.writeText(current.address);
       }}>
         <ContentCopy size="small" />
       </IconButton>
@@ -116,8 +118,12 @@ export function Wallet() {
     </Tooltip>
     <Tooltip title="Delete Address">
       <IconButton size="small" onClick={()=>{
-        addLog("Delete Address", current.address);
-        setShowDeleteConfirm(true);
+        addLog("Deleting Address", current.address);
+        if (getDb().data.walletList.length > 1) {
+          setShowDeleteConfirm(true);
+        } else {
+          message.info("You should leave at lease one address");
+        }
       }}>
         <DeleteForever />
       </IconButton>

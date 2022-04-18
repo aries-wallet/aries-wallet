@@ -2,7 +2,7 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 import { JsonForms } from "@jsonforms/react";
 import { Alert, Button } from "@mui/material";
 import { Space } from "antd";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { verifyPassword } from "../utils/crypto";
 
 const schema = {
