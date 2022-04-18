@@ -43,22 +43,22 @@ export function Contract() {
       />
       <Button variant="contained" >Access</Button>
       <Tooltip title="Copy ABI">
-        <IconButton>
+        <IconButton size="small">
           <FileCopy />
         </IconButton>
       </Tooltip>
       <Tooltip title="Copy Contract Address">
-        <IconButton>
+        <IconButton size="small">
           <ContentCopy />
         </IconButton>
       </Tooltip>
       <Tooltip title="Add Contract">
-        <IconButton>
+        <IconButton size="small">
           <AddBox />
         </IconButton>
       </Tooltip>
       <Tooltip title="Remove Contract">
-        <IconButton>
+        <IconButton size="small">
           <DeleteForever />
         </IconButton>
       </Tooltip>
@@ -66,7 +66,7 @@ export function Contract() {
       <Button variant="outlined" >Read Contract</Button>
       <Button>Write Contract</Button>
     </Space>
-    <Paper style={{width: '100%', marginTop: "20px"}} elevation={6} >
+    <Paper style={{width: '100%', marginTop: "20px", padding: "10px", borderRadius: '10px'}} elevation={0} >
     <Collapse defaultActiveKey={['1']}>
       <Panel header="1. symbol" key="1">
         <p>Hello</p>

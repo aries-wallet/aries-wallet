@@ -1,8 +1,9 @@
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { JsonForms } from "@jsonforms/react";
-import { Button } from "@mui/material";
+import { Alert, Button } from "@mui/material";
 import { Space } from "antd";
 import { useState } from "react";
+import { createAddress, registerPassword } from "../utils/crypto";
 
 const schema = {
   type: "object",
@@ -10,11 +11,13 @@ const schema = {
     password: {
       type: "string",
       description: "Enter your new password.",
+      minLength: 4,
     },
     password2: {
       type: "string",
-      title: "Password Again",
-      description: "Enter your password again.",
+      title: "Password",
+      description: "Enter same password again.",
+      minLength: 4,
     }
   },
   // required: ['password']
@@ -32,7 +35,6 @@ const uischema = {
       }
     },
     {
-      title: 'Password again',
       type: 'Control',
       scope: '#/properties/password2',
       options: {
@@ -41,22 +43,38 @@ const uischema = {
       }
     },
   ]
-  
 }
 
-export function Register() {
+export function Register(props) {
   const [data, setData] = useState({});
+  const [alert, setAlert] = useState('');
+  console.log('props', props);
   return <div>
     <Space align="center" direction="vertical" size="large" >
       <div>Sign Up</div>
       <JsonForms data={data} onChange={v=>{
-        if (v.errors) {
+        console.log('onchange', v);
+        if (v.errors && v.errors.length > 0) {
           console.error(v.errors);
         } else {
           setData(v.data);
         }
       }} schema={schema} renderers={materialRenderers} cells={materialCells} uischema={uischema} />
-    <Button variant="outlined" >Sign Up</Button>
+    <Button variant="outlined" onClick={async ()=>{
+      if (!data || !data.password || data.password !== data.password2) {
+        console.log('1', data);
+        setAlert('Password not correct');
+      } else {
+        console.log('2')
+        setAlert('');
+        await registerPassword(data.password);
+        await createAddress('Account 1');
+        props.setUnlock(true);
+      }
+    }} >Sign Up</Button>
+    {
+      alert !== '' && <Alert severity="error">{alert}</Alert>
+    }
     </Space>
   </div>
 }

@@ -1,11 +1,50 @@
 import { Low } from './low';
 import { writeFile, Dir, createDir, readTextFile } from "@tauri-apps/api/fs";
 
+const dbModal = {
+  current: {
+    rpc: {
+      name: 'Wanchain Mainnet',
+      rpcUrl: 'https://gwan-ssl.wandevs.org:56891',
+      explorer: 'https://wanscan.org/'
+    },
+    wallet: {},
+    contract: {}
+  },
+  rpcList: [
+    {
+      name: 'Wanchain Mainnet',
+      rpcUrl: 'https://gwan-ssl.wandevs.org:56891',
+      explorer: 'https://wanscan.org/'
+    }
+  ],
+  walletList: [
+    // {
+    //   name: 'Account 1',
+    //   address: '0x4Cf0A877E906DEaD748A41aE7DA8c220E4247D9e',
+    //   pk: 'xxxx', // encrypted private key
+    // },
+  ],
+  contractList: [
+    {
+      name: 'ZooKeeper Farming',
+      contract: '0x4E4Cb1b0b4953EA657EAF29198eD79C22d1a74A2',
+      abi: [{"inputs":[{"internalType":"contract ZooToken","name":"_zoo","type":"address"},{"internalType":"address","name":"_devaddr","type":"address"},{"internalType":"address","name":"_boostingAddr","type":"address"},{"internalType":"uint256","name":"_zooPerBlock","type":"uint256"},{"internalType":"uint256","name":"_startBlock","type":"uint256"},{"internalType":"uint256","name":"_allEndBlock","type":"uint256"},{"internalType":"address","name":"_wanswapFarmingAddr","type":"address"},{"internalType":"address","name":"_waspAddr","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pid","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Deposit","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pid","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"EmergencyWithdraw","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"pid","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdraw","type":"event"},{"inputs":[],"name":"PID_NOT_SET","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"TEAM_PERCENT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"allEndBlock","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"boostingAddr","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"devaddr","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"maxMultiplier","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"poolInfo","outputs":[{"internalType":"contract IERC20","name":"lpToken","type":"address"},{"internalType":"uint256","name":"allocPoint","type":"uint256"},{"internalType":"uint256","name":"lastRewardBlock","type":"uint256"},{"internalType":"uint256","name":"accZooPerShare","type":"uint256"},{"internalType":"uint256","name":"waspPid","type":"uint256"},{"internalType":"uint256","name":"accWaspPerShare","type":"uint256"},{"internalType":"bool","name":"dualFarmingEnable","type":"bool"},{"internalType":"bool","name":"emergencyMode","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startBlock","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalAllocPoint","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"userInfo","outputs":[{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"uint256","name":"rewardDebt","type":"uint256"},{"internalType":"uint256","name":"waspRewardDebt","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"wanswapFarming","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"wasp","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"zoo","outputs":[{"internalType":"contract ZooToken","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"zooPerBlock","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"uint256","name":"_waspPid","type":"uint256"},{"internalType":"bool","name":"_dualFarmingEnable","type":"bool"}],"name":"setWaspPid","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"}],"name":"withdrawAllFromWasp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_maxMultiplier","type":"uint256"}],"name":"setMaxMultiplier","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"poolLength","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_allocPoint","type":"uint256"},{"internalType":"contract IERC20","name":"_lpToken","type":"address"},{"internalType":"bool","name":"_withUpdate","type":"bool"},{"internalType":"uint256","name":"_waspPid","type":"uint256"},{"internalType":"bool","name":"_dualFarmingEnable","type":"bool"}],"name":"add","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"uint256","name":"_allocPoint","type":"uint256"},{"internalType":"bool","name":"_withUpdate","type":"bool"}],"name":"set","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_from","type":"uint256"},{"internalType":"uint256","name":"_to","type":"uint256"}],"name":"getMultiplier","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"address","name":"_user","type":"address"}],"name":"pendingZoo","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"address","name":"_user","type":"address"}],"name":"pendingWasp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"massUpdatePools","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"}],"name":"updatePool","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"},{"internalType":"uint256","name":"lockTime","type":"uint256"},{"internalType":"uint256","name":"nftTokenId","type":"uint256"}],"name":"deposit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"},{"internalType":"uint256","name":"_amount","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"}],"name":"emergencyWithdrawEnable","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_pid","type":"uint256"}],"name":"emergencyWithdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"_devaddr","type":"address"}],"name":"dev","outputs":[],"stateMutability":"nonpayable","type":"function"}]
+    }
+  ],
+  unlock: '', // check decrypt tauri-wallet = U2FsdGVkX19ZqVilAVmROv4Bn0S2EBEtI1agRYMexpc=
+}
+
 class TauriAdapter {
   async read() {
-    await createDir('db', { dir: Dir.App, recursive: true});
-    let str = await readTextFile('db/db.json', { dir: Dir.App });
-    return JSON.parse(str);
+    try {
+      await createDir('db', { dir: Dir.App, recursive: true});
+      let str = await readTextFile('db/db.json', { dir: Dir.App });
+      return JSON.parse(str);
+    } catch (error) {
+      console.error(error);
+      return;
+    }
   }
 
   async write(obj) {
@@ -25,15 +64,27 @@ let db;
 
 export const initDb = async () => {
   try {
-    console.log('initDb');
+    console.log('initDb', db);
     if (!db) {
       let adapter = new TauriAdapter();
+      console.log('adapter', adapter);
       db = new Low(adapter);
+      console.log('db', db);
     }
     await db.read();
-    console.log('db', db);
+    console.log('db2', db);
+    if (!db.data) {
+      db.data = dbModal;
+      await db.write();
+    } else {
+      if (db.data.unlock !== '') {
+        return true;
+      } else {
+        return false;
+      }
+    }
   } catch (error) {
-    console.error(error);
+    console.error('error', error);
   }
 }
 

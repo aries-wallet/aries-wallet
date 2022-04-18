@@ -48,12 +48,12 @@ export function Rpc() {
       uischema={schemaRpcUI}
     />
     <Tooltip title="Copy Rpc URL">
-      <IconButton>
+      <IconButton size="small">
         <CopyAll />
       </IconButton>
     </Tooltip>
     <Tooltip title="Add Rpc">
-      <IconButton onClick={async ()=>{
+      <IconButton size="small" onClick={async ()=>{
         console.log('click');
         await createDir('logs', { dir: Dir.App, recursive: true});
         await writeFile({
@@ -65,7 +65,7 @@ export function Rpc() {
       </IconButton>
     </Tooltip>
     <Tooltip title="Remove Rpc">
-      <IconButton>
+      <IconButton size="small">
         <DeleteForever />
       </IconButton>
     </Tooltip>
