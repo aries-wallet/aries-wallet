@@ -18,6 +18,13 @@ export function decrypt(text) {
   return originalText;
 }
 
+export function decryptWithPwd(text, pwd) {
+  // Decrypt
+  let bytes = CryptoJS.AES.decrypt(text, pwd);
+  let originalText = bytes.toString(CryptoJS.enc.Utf8);
+  return originalText;
+}
+
 export function verifyPassword(pwd) {
   try {
     let bytes = CryptoJS.AES.decrypt(getDb().data.unlock, pwd);

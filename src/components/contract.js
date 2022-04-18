@@ -2,7 +2,7 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { Collapse, Space } from "antd";
 import { useState } from "react";
-import { Button, IconButton, Paper, Tooltip } from "@mui/material";
+import { Button, Divider, IconButton, Paper, Tooltip } from "@mui/material";
 import { AddBox, ContentCopy, DeleteForever, FileCopy } from "@mui/icons-material";
 const { Panel } = Collapse;
 
@@ -26,7 +26,7 @@ export function Contract() {
   const [abi, setAbi] = useState('ZooKeeper');
   const [scAddr, setScAddr] = useState('0x4Cf0A877E906DEaD748A41aE7DA8c220E4247D9e');
   return <div style={{width:'100%', textAlign:'left'}}>
-    <Space >
+    <Space>
       <JsonForms
         renderers={materialRenderers}
         cells={materialCells}
@@ -41,6 +41,8 @@ export function Contract() {
         onChange={v=>setScAddr(v.data)}
         schema={schemaSCAddress}
       />
+      <Divider orientation="vertical" flexItem />
+      <Divider orientation="vertical" flexItem />
       <Button variant="contained" >Access</Button>
       <Tooltip title="Copy ABI">
         <IconButton size="small">
@@ -62,7 +64,8 @@ export function Contract() {
           <DeleteForever />
         </IconButton>
       </Tooltip>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <Divider orientation="vertical" flexItem />
+      <Divider orientation="vertical" flexItem />
       <Button variant="outlined" >Read Contract</Button>
       <Button>Write Contract</Button>
     </Space>

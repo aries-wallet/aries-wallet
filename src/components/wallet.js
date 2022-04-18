@@ -2,26 +2,13 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, TextField, Tooltip, Typography } from "@mui/material";
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Snackbar, TextField, Tooltip, Typography } from "@mui/material";
 import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import { withThemeCreator } from "@mui/styles";
 import useLog from "../hooks/useLog";
-import { createAddress } from "../utils/crypto";
-import { clipboard } from "@tauri-apps/api";
-
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  borderRadius: '10px'
-};
+import { createAddress, decrypt, decryptWithPwd } from "../utils/crypto";
+import { clipboard, dialog } from "@tauri-apps/api";
 
 export function Wallet() {
   const [schemaAddress, setSchemaAddress] = useState({
@@ -34,6 +21,10 @@ export function Wallet() {
   const [reload, setReload] = useState(0);
   const [current, setCurrent] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCopyPK, setShowCopyPK] = useState(false);
+  const [successInfo, setSuccessInfo] = useState('');
+  const [errorInfo, setErrorInfo] = useState('');
+  const [pwd, setPwd] = useState();
 
   useEffect(()=>{
     let list = getDb().data.walletList.map(v=>{
@@ -43,10 +34,8 @@ export function Wallet() {
 
     let currentInDb = getDb().data.current ? getDb().data.current.wallet : {};
     if ( currentInDb && currentInDb.address) {
-      console.log('setCurrent 0');
       setCurrent(currentInDb);
     } else {
-      console.log('setCurrent 1', currentInDb);
       setCurrent(getDb().data.walletList[0]);
     }
     setAccountName('Account ');
@@ -90,22 +79,31 @@ export function Wallet() {
       }}
       schema={schemaAddress}
     />
-    <TextField label="Balance" size="small" value={123423423.134} disabled style={{width: '120px'}} />
+    <TextField 
+      label="Balance" 
+      value={12342.134} 
+      disabled 
+      variant="standard"
+      style={{margin: '0 0 6px'}}
+    />
     <Tooltip title="Copy Address">
       <IconButton size="small" onClick={()=>{
         addLog('copy address', current.address);
         clipboard.writeText(current.address);
+        setSuccessInfo('Success Copied');
       }}>
         <ContentCopy size="small" />
       </IconButton>
     </Tooltip>
     <Tooltip title="View in Explorer">
-      <IconButton size="small">
+      <IconButton size="small" disabled>
         <Explore />
       </IconButton>
     </Tooltip>
     <Tooltip title="Copy Private Key">
-      <IconButton size="small">
+      <IconButton size="small" onClick={()=>{
+        setShowCopyPK(true);
+      }}>
         <LockOpen />
       </IconButton>
     </Tooltip>
@@ -129,25 +127,27 @@ export function Wallet() {
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Private Key">
-      <IconButton size="small">
+      <IconButton size="small" disabled>
         <Key />
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Keystore File">
-      <IconButton size="small">
+      <IconButton size="small" disabled>
         <FileOpen />
       </IconButton>
     </Tooltip>
     <Tooltip title="Export Keystore File">
-      <IconButton size="small">
+      <IconButton size="small" disabled>
         <Download />
       </IconButton>
     </Tooltip>
-    <Modal
+    <Dialog
       open={showCreateAddress}
       onClose={()=>{setShowCreateAddress(false)}}
     >
-      <Box sx={modalStyle}>
+      <DialogTitle style={{color: 'white'}}>Create Address</DialogTitle>
+      <DialogContent 
+      >
         <JsonForms 
           data={accountName}
           onChange={v=>setAccountName(v.data)}
@@ -159,7 +159,7 @@ export function Wallet() {
           cells={materialCells}
         />
         <p></p>
-        <Space style={{width: '100%', justifyContent: 'center'}}>
+        <DialogActions style={{width: '100%', justifyContent: 'center'}}>
         <Button variant="contained" onClick={async ()=>{
           await createAddress(accountName);
           await setCurrentInDb(getDb().data.walletList[getDb().data.walletList.length - 1]);
@@ -170,10 +170,9 @@ export function Wallet() {
         <Button variant="outlined" onClick={e=>{
           setShowCreateAddress(false)
         }}>Cancel</Button>
-        </Space>
-        
-      </Box>
-    </Modal>
+        </DialogActions>
+      </DialogContent>
+    </Dialog>
     <Dialog open={showDeleteConfirm} onClose={()=>setShowDeleteConfirm(false)} >
       <DialogTitle style={{color:'white'}}>
         {"Do you want to remove address?"}
@@ -203,5 +202,69 @@ export function Wallet() {
         </Button>
       </DialogActions>
     </Dialog>
+    {
+      showCopyPK && <Dialog
+        open={showCopyPK}
+        onClose={()=>{
+          setPwd('');
+          setShowCopyPK(false)
+        }}
+      >
+        <DialogTitle style={{color: 'white'}}>Copy Private Key</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please input your password to unlock your private key
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="pwd"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="standard"
+            value={pwd}
+            onChange={e=>{
+              setPwd(e.target.value);
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={async ()=>{
+            try {
+              let pk = decryptWithPwd(current.pk, pwd);
+              if (!pk || pk === '') {
+                throw new Error('unlock failed');
+              }
+              await clipboard.writeText(pk);
+              setSuccessInfo('Success Copied');
+              setPwd('');
+              setShowCopyPK(false)
+            } catch (error) {
+              setErrorInfo('Unlock Failed');
+            }
+          }}>Ok</Button>
+          <Button onClick={()=>{
+            setPwd('');
+            setShowCopyPK(false)
+          }}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    }
+    
+    {
+      successInfo !== '' && <Snackbar open={successInfo !== ''} autoHideDuration={6000} onClose={()=>setSuccessInfo('')}>
+        <Alert onClose={()=>setSuccessInfo('')} severity="success" sx={{ width: '100%' }}>
+          {successInfo}
+        </Alert>
+      </Snackbar>
+    }
+    {
+      errorInfo !== '' && <Snackbar open={errorInfo !== ''} autoHideDuration={6000} onClose={()=>setErrorInfo('')}>
+        <Alert onClose={()=>setErrorInfo('')} severity="error" sx={{ width: '100%' }}>
+          {errorInfo}
+        </Alert>
+      </Snackbar>
+    }
   </Space>
 }
