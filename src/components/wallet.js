@@ -1,14 +1,16 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
-import { useEffect, useMemo, useState } from "react";
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Snackbar, TextField, Tooltip, Typography } from "@mui/material";
-import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen, Password } from "@mui/icons-material";
 import { getDb } from "../utils/db";
-import { withThemeCreator } from "@mui/styles";
 import useLog from "../hooks/useLog";
-import { createAddress, decrypt, decryptWithPwd } from "../utils/crypto";
-import { clipboard, dialog } from "@tauri-apps/api";
+import { createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";
+import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
+import { MessageBox } from './message';
+import useRpc from '../hooks/useRpc';
+import Web3 from 'web3';
 
 export function Wallet() {
   const [schemaAddress, setSchemaAddress] = useState({
@@ -25,12 +27,19 @@ export function Wallet() {
   const [successInfo, setSuccessInfo] = useState('');
   const [errorInfo, setErrorInfo] = useState('');
   const [pwd, setPwd] = useState();
+  const [pwd2, setPwd2] = useState();
+  const { rpc } = useRpc();
+  const [balance, setBalance] = useState('0.0');
+  const [showImportPK, setShowImportPK] = useState(false);
+  const [pk, setPk] = useState('');
+  const [showImportKeystore, setShowImportKeystore] = useState(false);
+  const [showSaveKeystore, setShowSaveKeystore] = useState(false);
+  const [keystorePath, setKeystorePath] = useState('');
 
   useEffect(()=>{
     let list = getDb().data.walletList.map(v=>{
       return [v.name, '(', v.address.slice(0,6), '...', v.address.slice(-4), ')'].join('');
     });
-    console.log('current', getDb().data.current);
 
     let currentInDb = getDb().data.current ? getDb().data.current.wallet : {};
     if ( currentInDb && currentInDb.address) {
@@ -45,6 +54,27 @@ export function Wallet() {
       enum: list
     });
   }, [reload]);
+
+  useEffect(()=>{
+    let web3 = new Web3(new Web3.providers.HttpProvider(rpc.rpcUrl));
+    const func = async () => {
+      try {
+        if (web3.utils.isAddress(current.address, 1)) {
+          let balance = await web3.eth.getBalance(current.address);
+          setBalance(web3.utils.fromWei(balance));
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    func();
+    let timer = setInterval(func, 12000);
+    return () => {
+      clearInterval(timer);
+    }
+    
+  }, [rpc, current, setBalance]);
 
   const currentAddress = useMemo(()=>{
     if (current.address) {
@@ -81,7 +111,7 @@ export function Wallet() {
     />
     <TextField 
       label="Balance" 
-      value={12342.134} 
+      value={balance}
       disabled 
       variant="standard"
       style={{margin: '0 0 6px'}}
@@ -96,7 +126,9 @@ export function Wallet() {
       </IconButton>
     </Tooltip>
     <Tooltip title="View in Explorer">
-      <IconButton size="small" disabled>
+      <IconButton size="small" onClick={()=>{
+        shell.open(`${rpc.explorer}/address/${current.address}`);
+      }}>
         <Explore />
       </IconButton>
     </Tooltip>
@@ -127,17 +159,23 @@ export function Wallet() {
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Private Key">
-      <IconButton size="small" disabled>
+      <IconButton size="small" onClick={()=>{
+        setShowImportPK(true);
+      }}>
         <Key />
       </IconButton>
     </Tooltip>
     <Tooltip title="Import Keystore File">
-      <IconButton size="small" disabled>
+      <IconButton size="small" onClick={()=>{
+        setShowImportKeystore(true);
+      }}>
         <FileOpen />
       </IconButton>
     </Tooltip>
     <Tooltip title="Export Keystore File">
-      <IconButton size="small" disabled>
+      <IconButton size="small" onClick={()=>{
+        setShowSaveKeystore(true);
+      }}>
         <Download />
       </IconButton>
     </Tooltip>
@@ -251,20 +289,137 @@ export function Wallet() {
         </DialogActions>
       </Dialog>
     }
+    {showImportPK && <Dialog open={showImportPK} onClose={()=>setShowImportPK(false)}>
+      <DialogTitle style={{color:'white'}}>Import Private Key</DialogTitle>
+      <DialogContent>
+        <DialogContentText>Your private key will be encrypted and stored locally.</DialogContentText>
+        <Stack spacing={1}>
+          <TextField label="Account Name" variant="standard" value={accountName} onChange={e=>setAccountName(e.target.value)} />
+          <TextField label="Private Key" type={'password'} variant="standard" value={pk} onChange={e=>setPk(e.target.value)} />
+        </Stack>
+        
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={async ()=>{
+          try {
+            let web3 = new Web3();
+            let obj = web3.eth.accounts.privateKeyToAccount(pk);
+            let account = {
+              name: accountName,
+              address: obj.address,
+              pk: encrypt(pk)
+            }
+            await importAccount(account);
+            await setCurrentInDb(getDb().data.walletList[getDb().data.walletList.length - 1]);
+            addLog('import wallet...', getDb().data.current.wallet.address);
+            setReload(Date.now());
+            setShowImportPK(false);
+          } catch (error) {
+            addLog('ERROR', error.message);
+          }
+        }}>Ok</Button>
+        <Button onClick={()=>setShowImportPK(false)}>Cancel</Button>
+      </DialogActions>
+    </Dialog>}
+    {
+      showImportKeystore && <Dialog open={showImportKeystore} onClose={()=>setShowImportKeystore(false)}>
+        <DialogTitle style={{color:'white'}}>Import Keystore</DialogTitle>
+        <DialogContent>
+          <Stack spacing={1}>
+            <TextField label="Account Name" variant="standard" value={accountName} onChange={e=>setAccountName(e.target.value)} />
+            <TextField label="Password of keystore" type={'password'} variant="standard" value={pwd} onChange={e=>setPwd(e.target.value)} />
+            <TextField label="Keystore Path" variant="standard" value={keystorePath} disabled />
+            <Button
+              variant="contained"
+              component="label"
+              onClick={async ()=>{
+                let ret = await dialog.open();
+                console.log('ret', ret);
+                setKeystorePath(ret);
+              }}
+            >
+              Upload File
+            </Button>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={async ()=>{
+            if (!keystorePath || !pwd) {
+              return;
+            }
+
+            try {
+              let file = await fs.readTextFile(keystorePath);
+              let web3 = new Web3();
+              let key = web3.eth.accounts.decrypt(file, pwd);
+              let account = {
+                name: accountName,
+                address: key.address,
+                pk: encrypt(key.privateKey),
+              }
+              await importAccount(account);
+              await setCurrentInDb(getDb().data.walletList[getDb().data.walletList.length - 1]);
+              addLog('import keystore...', getDb().data.current.wallet.address);
+              setReload(Date.now());
+              setShowImportKeystore(false);
+            } catch (error) {
+              console.error(error);
+              setErrorInfo(error.message);
+            }
+
+          }}>Ok</Button>
+          <Button onClick={()=>setShowImportKeystore(false)}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    }
+    {
+      showSaveKeystore && <Dialog open={showSaveKeystore} onClose={()=>setShowSaveKeystore(false)}>
+        <DialogTitle color="white">Save Account to Keystore</DialogTitle>
+        <DialogContent>
+          <TextField 
+            label="Wallet password"
+            variant="standard"
+            value={pwd2}
+            type="password"
+            fullWidth
+            onChange={e=>setPwd2(e.target.value)}
+          />
+          <TextField 
+            label="Keystore password"
+            variant="standard"
+            value={pwd}
+            type="password"
+            fullWidth
+            onChange={e=>setPwd(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={async ()=>{
+            try {
+              let pk = decryptWithPwd(current.pk, pwd2);
+              if (!pk || pk === '') {
+                throw new Error('Wallet password not correct');
+              }
+              let savePath = await dialog.save({defaultPath:`${path.desktopDir}/UTC--${(new Date()).toISOString().replaceAll(':','-')}--${current.address}`});
+              addLog("Save keystore to:", savePath);
+              let web3 = new Web3();
+              let keyJson = web3.eth.accounts.encrypt(pk, pwd);
+              console.log('keyJson', keyJson, pk);
+              await fs.writeFile({
+                contents: JSON.stringify(keyJson),
+                path: savePath,
+              });
+              setShowSaveKeystore(false);
+            } catch (error) {
+              console.error(error);
+              setErrorInfo(error.message);
+            }
+          }}>Save As...</Button>
+          <Button onClick={()=>setShowSaveKeystore(false)}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    }
     
-    {
-      successInfo !== '' && <Snackbar open={successInfo !== ''} autoHideDuration={6000} onClose={()=>setSuccessInfo('')}>
-        <Alert onClose={()=>setSuccessInfo('')} severity="success" sx={{ width: '100%' }}>
-          {successInfo}
-        </Alert>
-      </Snackbar>
-    }
-    {
-      errorInfo !== '' && <Snackbar open={errorInfo !== ''} autoHideDuration={6000} onClose={()=>setErrorInfo('')}>
-        <Alert onClose={()=>setErrorInfo('')} severity="error" sx={{ width: '100%' }}>
-          {errorInfo}
-        </Alert>
-      </Snackbar>
-    }
+    <MessageBox successInfo={successInfo} errorInfo={errorInfo} setSuccessInfo={setSuccessInfo} setErrorInfo={setErrorInfo} />
   </Space>
 }

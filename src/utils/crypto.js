@@ -58,3 +58,9 @@ export async function createAddress(name) {
   });
   await getDb().write();
 }
+
+export async function importAccount(account) {
+  getDb().data.walletList.push(account);
+  await getDb().write();
+  
+}

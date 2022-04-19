@@ -16,7 +16,57 @@ const dbModal = {
       name: 'Wanchain Mainnet',
       rpcUrl: 'https://gwan-ssl.wandevs.org:56891',
       explorer: 'https://wanscan.org/'
-    }
+    },
+    {
+      name: 'Wanchain Testnet',
+      rpcUrl: 'https://gwan-ssl.wandevs.org:46891',
+      explorer: 'https://testnet.wanscan.org/'
+    },
+    {
+      name: 'Ethereum Mainnet',
+      rpcUrl: 'https://eth-rpc.gateway.pokt.network',
+      explorer: 'https://etherscan.io/'
+    },
+    {
+      name: 'Rinkeby Testnet',
+      rpcUrl: 'https://nodes-testnet.wandevs.org/eth',
+      explorer: 'https://rinkeby.etherscan.io/'
+    },
+    {
+      name: 'Avalanche Mainnet',
+      rpcUrl: 'https://api.avax.network/ext/bc/C/rpc',
+      explorer: 'https://snowtrace.io/'
+    },
+    {
+      name: 'Avalanche Fuji Testnet',
+      rpcUrl: 'https://api.avax-test.network/ext/bc/C/rpc',
+      explorer: 'https://testnet.snowtrace.io/'
+    },
+    {
+      name: 'Binance Smart Chain Mainnet',
+      rpcUrl: 'https://bsc-dataseed1.binance.org',
+      explorer: 'https://bscscan.com/'
+    },
+    {
+      name: 'Binance Smart Chain Testnet',
+      rpcUrl: 'https://data-seed-prebsc-1-s3.binance.org:8545',
+      explorer: 'https://testnet.bscscan.com/'
+    },
+    {
+      name: 'Moonriver',
+      rpcUrl: 'https://rpc.api.moonriver.moonbeam.network',
+      explorer: 'https://moonriver.moonscan.io/'
+    },
+    {
+      name: 'Moonbase Alpha',
+      rpcUrl: 'https://rpc.testnet.moonbeam.network',
+      explorer: 'https://moonbase.moonscan.io/'
+    },
+    {
+      name: 'Moonbeam',
+      rpcUrl: 'https://rpc.api.moonbeam.network',
+      explorer: 'https://moonbeam.moonscan.io/'
+    },
   ],
   walletList: [
     // {
