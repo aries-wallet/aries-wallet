@@ -8,10 +8,6 @@ on:
   repository_dispatch:
     types: [publish-clijs]
 
-defaults:
-  run:
-    working-directory: tooling/cli/node/
-
 jobs:
   build:
     strategy:
@@ -22,14 +18,13 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
             build: |
-              yarn build
-              strip -x *.node
+              yarn tauri build
           - host: windows-latest
-            build: yarn build
+            build: yarn tauri build
             target: x86_64-pc-windows-msvc
             architecture: x64
           - host: windows-latest
-            build: yarn build --target i686-pc-windows-msvc
+            build: yarn tauri build --target i686-pc-windows-msvc
             target: i686-pc-windows-msvc
             architecture: x64
           - host: ubuntu-18.04
@@ -39,16 +34,16 @@ jobs:
               set -e &&
               rustup target add x86_64-unknown-linux-gnu &&
               cd tooling/cli/node
-              yarn build --target x86_64-unknown-linux-gnu --zig --zig-abi-suffix 2.12 &&
+              yarn tauri build --target x86_64-unknown-linux-gnu --zig --zig-abi-suffix 2.12 &&
               llvm-strip -x *.node
           - host: ubuntu-18.04
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: set -e && cd tooling/cli/node && yarn build && strip *.node
+            build: set -e && cd tooling/cli/node && yarn tauri build && strip *.node
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
-              yarn build --target=aarch64-apple-darwin
+              yarn tauri build --target=aarch64-apple-darwin
               strip -x *.node
           - host: ubuntu-18.04
             architecture: x64
@@ -57,7 +52,7 @@ jobs:
               sudo apt-get update
               sudo apt-get install g++-aarch64-linux-gnu gcc-aarch64-linux-gnu -y
             build: |
-              yarn build --target=aarch64-unknown-linux-gnu
+              yarn tauri build --target=aarch64-unknown-linux-gnu
               aarch64-linux-gnu-strip *.node
           - host: ubuntu-18.04
             architecture: x64
@@ -75,8 +70,7 @@ jobs:
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-musl &&
-              cd tooling/cli/node &&
-              yarn build --target aarch64-unknown-linux-musl &&
+              yarn tauri build --target aarch64-unknown-linux-musl &&
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           #- host: windows-latest
           #  architecture: x64
@@ -134,55 +128,6 @@ jobs:
           name: bindings-${{ matrix.settings.target }}
           path: tooling/cli/node/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
-  #  build-freebsd:
-  #    runs-on: macos-10.15
-  #    name: Build FreeBSD
-  #    steps:
-  #      - uses: actions/checkout@v3
-  #      - name: Build
-  #        id: build
-  #        uses: vmactions/freebsd-vm@v0.1.6
-  #        env:
-  #          DEBUG: napi:*
-  #          RUSTUP_HOME: /usr/local/rustup
-  #          CARGO_HOME: /usr/local/cargo
-  #          RUSTUP_IO_THREADS: 1
-  #        with:
-  #          envs: DEBUG RUSTUP_HOME CARGO_HOME RUSTUP_IO_THREADS
-  #          usesh: true
-  #          mem: 3000
-  #          prepare: |
-  #            pkg install -y curl node14 python2
-  #            curl -qL https://www.npmjs.com/install.sh | sh
-  #            npm install -g yarn
-  #            curl https://sh.rustup.rs -sSf --output rustup.sh
-  #            sh rustup.sh -y --profile minimal --default-toolchain stable
-  #            export PATH="/usr/local/cargo/bin:$PATH"
-  #            echo "~~~~ rustc --version ~~~~"
-  #            rustc --version
-  #            echo "~~~~ node -v ~~~~"
-  #            node -v
-  #            echo "~~~~ yarn --version ~~~~"
-  #            yarn --version
-  #          run: |
-  #            export PATH="/usr/local/cargo/bin:$PATH"
-  #            pwd
-  #            ls -lah
-  #            whoami
-  #            env
-  #            freebsd-version
-  #            cd ./tooling/cli/node/
-  #            yarn install --ignore-scripts --frozen-lockfile --registry https://registry.npmjs.org --network-timeout 300000
-  #            yarn build
-  #            strip -x *.node
-  #            rm -rf node_modules
-  #            rm -rf ../target
-  #      - name: Upload artifact
-  #        uses: actions/upload-artifact@v3
-  #        with:
-  #          name: bindings-freebsd
-  #          path: tooling/cli/node/${{ env.APP_NAME }}.*.node
-  #          if-no-files-found: error
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
@@ -395,4 +340,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
