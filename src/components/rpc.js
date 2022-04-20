@@ -2,9 +2,8 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { Space } from "antd";
 import { useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Snackbar, Tooltip } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Tooltip } from "@mui/material";
 import { AddCircle, CopyAll, DeleteForever } from "@mui/icons-material";
-import { writeFile, Dir, createDir } from "@tauri-apps/api/fs";
 import useRpc from "../hooks/useRpc";
 import { clipboard, dialog } from "@tauri-apps/api";
 import { MessageBox } from './message';
@@ -38,15 +37,15 @@ export function Rpc() {
     }
   }, [rpc]);
 
+  const rpcListLength = rpcList.length;
   const schemaNetwork = useMemo(()=>{
     return {
       type: "string",
       title: "Current Network",
-      enum: rpcList.map(v=>v.name)
+      enum: rpcList.map(v=>v.name),
+      enumLength: rpcListLength,
     }
-  }, [rpcList, rpcList.length])
-
-  console.log('schemaNetwork', schemaNetwork, rpcList);
+  }, [rpcList, rpcListLength])
 
   const [newRpc, setNewRpc] = useState({
     name:'',

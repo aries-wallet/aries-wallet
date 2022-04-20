@@ -44,18 +44,18 @@ export function Contract() {
     }
   }, [contract])
 
+  const listLength = contractList.length;
+
   const schemaAbi = useMemo(()=>{
     if (contractList) {
       return {
         type: "string",
         title: "Contract ABI",
-        enum: contractList.map(v=>v.name)
+        enum: contractList.map(v=>v.name),
+        listLength
       }
     }
-  }, [contractList, contractList.length]);
-
-  console.log('schemaAbi', schemaAbi, contractList);
-
+  }, [contractList, listLength]);
 
   const [newContract, setNewContract] = useState({
     name: '',
