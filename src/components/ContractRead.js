@@ -54,11 +54,11 @@ function ReadPanel(props) {
         setReload(Date.now());
       }} >Query</Button>
       {
-        subAbi.outputs.length === 1 && <p>{outputData} &nbsp;&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[0].type}</i></p>
+        subAbi.outputs.length === 1 && <p>↳&nbsp;{outputData} &nbsp;&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[0].type}</i></p>
       }
       {
         subAbi.outputs.length > 1 && subAbi.outputs.map((v,i)=>{
-          return <p key={i}><i style={{color:'gray'}}>{subAbi.outputs[i].name}:</i>&nbsp;&nbsp;{outputData[i] !== undefined && outputData[i].toString()} &nbsp;<i style={{color:'gray'}}>{subAbi.outputs[i].type}</i></p>
+          return <p key={i}>↳&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[i].name}:</i>&nbsp;&nbsp;{outputData[i] !== undefined && outputData[i].toString()} &nbsp;<i style={{color:'gray'}}>{subAbi.outputs[i].type}</i></p>
         })
       }
       
