@@ -17,25 +17,30 @@ function ReadPanel(props) {
   const { addLog } = useLog();
 
   useEffect(()=>{
-    if (subAbi.inputs.length === 0) {
-      addLog('query sc function', subAbi.name, 'pending...');
-      sc.methods[subAbi.name]().call().then(ret=>{
-        addLog(`query sc function ${subAbi.name} return`, ret);
-        setOutputData(ret);
-      }).catch(err=>{
-        console.error(err);
-        addLog('ERROR:', err.message);
-      });
-    } else if (Object.values(inputData).length > 0) {
-      addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} pending...`);
-      sc.methods[subAbi.name](...Object.values(inputData)).call().then(ret=>{
-        console.log('ret', ret);
-        addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} return`, JSON.stringify(ret));
-        setOutputData(ret);
-      }).catch(err=>{
-        console.error(err);
-        addLog('ERROR:', err.message);
-      });
+    try{
+      if (subAbi.inputs.length === 0) {
+        addLog('query sc function', subAbi.name, 'pending...');
+        sc.methods[subAbi.name]().call().then(ret=>{
+          addLog(`query sc function ${subAbi.name} return`, ret);
+          setOutputData(ret);
+        }).catch(err=>{
+          console.error(err);
+          addLog('ERROR:', err.message);
+        });
+      } else if (Object.values(inputData).length > 0) {
+        addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} pending...`);
+        sc.methods[subAbi.name](...Object.values(inputData)).call().then(ret=>{
+          console.log('ret', ret);
+          addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} return`, JSON.stringify(ret));
+          setOutputData(ret);
+        }).catch(err=>{
+          console.error(err);
+          addLog('ERROR:', err.message);
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      addLog('ERROR', err.message);
     }
   }, [reload]);
 
@@ -106,5 +111,18 @@ function abiToSchema(subAbi) {
 }
 
 function abiToUISchema(subAbi) {
+  let elements = subAbi.map((v,i)=>{
+    return {
+      type: 'Control',
+      scope: '#/properties/' + (v.name ? v.name : `param${i}`),
+      options: {
+        showUnfocusedDescription: true
+      }
+    };
+  })
 
+  return {
+    type: 'VerticalLayout',
+    elements,
+  }
 }
