@@ -2,23 +2,21 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { Collapse, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Paper, Tooltip } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
 import { AddBox, ContentCopy, DeleteForever, FileCopy } from "@mui/icons-material";
 import { MessageBox } from "./message";
 import useContract from "../hooks/useContract";
 import { clipboard, dialog } from "@tauri-apps/api";
 import useLog from '../hooks/useLog';
-
-const { Panel } = Collapse;
-
+import { ContractRead } from "./ContractRead";
+import useRpc from "../hooks/useRpc";
+import Web3 from "web3";
 
 
 const schemaSCAddress = {
   type: "string",
   title: "Contract Address",
 }
-
-
 
 export function Contract() {
   const [successInfo, setSuccessInfo] = useState('');
@@ -35,8 +33,6 @@ export function Contract() {
       return { scName: 'empty', scAddr: 'empty' };
     }
   },[contract]);
-
-  console.log('contract', contract);
 
   useEffect(()=>{
     if (contract) {
@@ -63,6 +59,18 @@ export function Contract() {
     abi: ''
   });
 
+  const [isRead, setIsRead] = useState(true);
+  const [accessAddr, setAccessAddr] = useState('');
+  const [accessAbi, setAccessAbi] = useState([]);
+
+  const { rpc } = useRpc();
+
+  const web3Reader = useMemo(()=>{
+    if (rpc && rpc.rpcUrl) {
+      return new Web3(new Web3.providers.HttpProvider(rpc.rpcUrl));
+    }
+  }, [rpc]);
+
   return <div style={{width:'100%', textAlign:'left'}}>
     <Space>
       <JsonForms
@@ -81,7 +89,10 @@ export function Contract() {
       />
       <Divider orientation="vertical" flexItem />
       <Divider orientation="vertical" flexItem />
-      <Button variant="contained" >Access</Button>
+      <Button variant="contained" onClick={()=>{
+        setAccessAddr(contract.contract);
+        setAccessAbi(JSON.parse(contract.abi));
+      }} >Access</Button>
       <Tooltip title="Copy ABI">
         <IconButton size="small" onClick={async ()=>{
           await clipboard.writeText(contract.abi);
@@ -124,25 +135,16 @@ export function Contract() {
       </Tooltip>
       <Divider orientation="vertical" flexItem />
       <Divider orientation="vertical" flexItem />
-      <Button variant="outlined" >Read Contract</Button>
-      <Button>Write Contract</Button>
+      <Button variant={isRead ? "outlined" : "text"} onClick={()=>{
+        setIsRead(true);
+      }} >Read Contract</Button>
+      <Button variant={!isRead ? "outlined" : "text"} onClick={()=>{
+        setIsRead(false);
+      }}>Write Contract</Button>
     </Space>
-    <Paper style={{width: '100%', marginTop: "20px", padding: "10px", borderRadius: '10px'}} elevation={0} >
-    <Collapse defaultActiveKey={['1']}>
-      <Panel header="1. symbol" key="1">
-        <p>Hello</p>
-        <Button variant="outlined">Read</Button>
-      </Panel>
-      <Panel header="2. decimals" key="2">
-        <p>Hello</p>
-        <Button variant="outlined">Read</Button>
-      </Panel>
-      <Panel header="3. name" key="3">
-        <p>Hello</p>
-        <Button variant="outlined">Read</Button>
-      </Panel>
-    </Collapse>
-    </Paper>
+    {
+      isRead && accessAddr && accessAbi.length > 0 && web3Reader && <ContractRead web3={web3Reader} scAddr={accessAddr} abi={accessAbi} />
+    }
     <Dialog open={showAddContract} onClose={()=>setShowAddContract(false)} fullWidth>
       <DialogTitle color="white">Add Contract</DialogTitle>
       <DialogContent>
