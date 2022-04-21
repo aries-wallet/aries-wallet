@@ -75,6 +75,7 @@ jobs:
           name: tauri-wallet-windows
           path: ./src-tauri/target/release/bundle/msi/*.msi
   create-release:
+    needs: [build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
