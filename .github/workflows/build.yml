@@ -33,7 +33,7 @@ jobs:
           # The desired behavior if no files are found using the provided path.
   build-linux:
     # The type of runner that the job will run on
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -45,6 +45,10 @@ jobs:
       # Runs a single command using the runners shell
       - run: npm install
       - run: npm run tauri build
+      # - name: Upload a Build Artifact
+      #   uses: actions/upload-artifact@v3.0.0
+      #   with:
+      #     path: ./src-tauri/target/release/bundle/msi/*.msi
   build-windows:
     # The type of runner that the job will run on
     runs-on: windows-latest
@@ -59,3 +63,7 @@ jobs:
       # Runs a single command using the runners shell
       - run: npm install
       - run: npm run tauri build
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          path: ./src-tauri/target/release/bundle/msi/*.msi
