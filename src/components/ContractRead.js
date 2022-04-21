@@ -60,7 +60,7 @@ function ReadPanel(props) {
         setReload(Date.now());
       }} >Query</Button>
       {
-        subAbi.outputs.length === 1 && <p>↳&nbsp;{outputData} &nbsp;&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[0].type}</i></p>
+        subAbi.outputs.length === 1 && <p>↳&nbsp;{outputData !== undefined && outputData.toString()} &nbsp;&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[0].type}</i></p>
       }
       {
         subAbi.outputs.length > 1 && subAbi.outputs.map((v,i)=>{
