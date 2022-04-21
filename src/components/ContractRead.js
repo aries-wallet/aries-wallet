@@ -79,7 +79,12 @@ export function ContractRead(props) {
     return props.abi.filter(v=>!(v.type !== 'function' || v.stateMutability !== 'view'));
   }, [props.abi]);
   const sc = useMemo(()=>{
-    return new web3.eth.Contract(abi, scAddr);
+    console.log('scAddr 2', scAddr);
+    try {
+      return new web3.eth.Contract(abi, scAddr);
+    } catch (err) {
+      console.error('ERROR', err);
+    }
   }, [web3, scAddr, abi]);
 
   return <Paper style={{width: '100%', marginTop: "20px", padding: "10px", borderRadius: '10px'}} elevation={0} >

@@ -113,6 +113,8 @@ export function Contract() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rpc, scAddr]);
 
+  console.log('scAddr', scAddr);
+
   return <div style={{width:'100%', textAlign:'left'}}>
     <Space>
       <JsonForms
@@ -132,7 +134,7 @@ export function Contract() {
       <Divider orientation="vertical" flexItem />
       <Divider orientation="vertical" flexItem />
       <Button variant="contained" onClick={()=>{
-        setAccessAddr(contract.contract);
+        setAccessAddr(scAddr);
         setAccessAbi(JSON.parse(contract.abi));
       }} >Access</Button>
       <Tooltip title="Copy ABI">
