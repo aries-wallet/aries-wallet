@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v3.0.0
         with:
           name: tauri-wallet-linux
-          path: ./src-tauri/target/release/bundle/appimage/*.AppImage
+          path: ./src-tauri/target/release/bundle/appimage/tauri-*.AppImage
   build-windows:
     # The type of runner that the job will run on
     runs-on: windows-latest
