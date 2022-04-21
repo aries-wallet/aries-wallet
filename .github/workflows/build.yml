@@ -44,6 +44,7 @@ jobs:
         with:
           node-version: '16'
       # Runs a single command using the runners shell
+      - run: sudo apt-get install -y libgtk-3-dev webkit2gtk-4.0 libayatana-appindicator3-dev librsvg2-dev patchelf
       - run: npm install
       - run: npm run tauri build
       # - name: Upload a Build Artifact
