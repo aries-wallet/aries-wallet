@@ -90,7 +90,8 @@ export function Contract() {
         try {
           let web3 = new Web3(provider);
           let sc = new web3.eth.Contract([subAbi], scAddr);
-          let tx = await sc.methods[subAbi.name](...params).send({from: wallet.address, value: payableValue ? payableValue : 0});
+          let nonce = await web3.eth.getTransactionCount(wallet.address);
+          let tx = await sc.methods[subAbi.name](...params).send({from: wallet.address, value: payableValue ? payableValue : 0, nonce: `0x${nonce.toString(16)}`});
           if (tx && tx.status) {
             addLog('Transaction Hash:', tx.transactionHash);
             setSuccessInfo("Send Tx successed");
@@ -148,7 +149,7 @@ export function Contract() {
       </Tooltip>
       <Tooltip title="Copy Contract Address">
         <IconButton size="small" onClick={async ()=>{
-          await clipboard.writeText(contract.contract);
+          await clipboard.writeText(scAddr);
           addLog('Copy Contract Address');
           setSuccessInfo("Contract Address copied");
         }}>
