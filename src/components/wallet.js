@@ -1,9 +1,9 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Modal, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
-import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen, Password } from "@mui/icons-material";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
+import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
 import { createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";

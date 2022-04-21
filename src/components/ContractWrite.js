@@ -3,7 +3,7 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 
 import { Button, Paper, Stack } from "@mui/material";
 import { Collapse } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import useLog from "../hooks/useLog";
 
 const { Panel } = Collapse;
@@ -12,7 +12,6 @@ function WritePanel(props) {
   const subAbi = props.subAbi;
   const send = props.send;
   const [inputData, setInputData] = useState({});
-  const [outputData, setOutputData] = useState([]);
   const { addLog } = useLog();
 
   return <div>
@@ -40,15 +39,6 @@ function WritePanel(props) {
 
         await send(subAbi, Object.values(params), payable);
       }} >Write</Button>
-      {
-        subAbi.outputs.length === 1 && <p>↳&nbsp;{outputData} &nbsp;&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[0].type}</i></p>
-      }
-      {
-        subAbi.outputs.length > 1 && subAbi.outputs.map((v,i)=>{
-          return <p key={i}>↳&nbsp;<i style={{color:'gray'}}>{subAbi.outputs[i].name}:</i>&nbsp;&nbsp;{outputData[i] !== undefined && outputData[i].toString()} &nbsp;<i style={{color:'gray'}}>{subAbi.outputs[i].type}</i></p>
-        })
-      }
-      
     </Stack>
   </div>
 }

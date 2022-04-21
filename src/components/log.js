@@ -7,6 +7,7 @@ export function Log() {
 
   useEffect(()=>{
     addLog('Wallet started.');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div style={{width:'100%', padding:'20px'}}>

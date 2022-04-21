@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import { Rpc } from './components/rpc';
 import { Login } from './pages/login';
 import { Main } from './pages/main';
 import { Register } from './pages/register';

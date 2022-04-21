@@ -42,7 +42,8 @@ function ReadPanel(props) {
       console.error(err);
       addLog('ERROR', err.message);
     }
-  }, [reload]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reload, subAbi, inputData, sc]);
 
   return <div>
     <Stack spacing={1}>

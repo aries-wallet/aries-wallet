@@ -37,7 +37,7 @@ export function Login(props) {
     } else {
       setAlert('Password is not correct.');
     }
-  }, [data]);
+  }, [data, props]);
 
   return <div>
     <Space align="center">

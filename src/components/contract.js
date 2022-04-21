@@ -1,6 +1,6 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
-import { Collapse, Space } from "antd";
+import { Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
 import { AddBox, ContentCopy, DeleteForever, FileCopy } from "@mui/icons-material";
@@ -110,6 +110,7 @@ export function Contract() {
         setErrorInfo("Send Tx Failed");
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rpc, scAddr]);
 
   return <div style={{width:'100%', textAlign:'left'}}>
