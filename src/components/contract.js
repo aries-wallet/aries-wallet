@@ -2,8 +2,8 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
-import { AddBox, ContentCopy, DeleteForever, FileCopy } from "@mui/icons-material";
+import { Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
+import { AddBox, ContentCopy, DeleteForever, ErrorOutline, FileCopy } from "@mui/icons-material";
 import { MessageBox } from "./message";
 import useContract from "../hooks/useContract";
 import { clipboard, dialog } from "@tauri-apps/api";
@@ -187,6 +187,7 @@ export function Contract() {
         setIsRead(false);
       }}>Write Contract</Button>
     </Space>
+    <div><Chip size="small" icon={<ErrorOutline/>} variant="outlined" label="Please enter each parameter in order when a sc function has multiple input parameters. otherwise, the parameters may be confused." /></div>
     {
       isRead && accessAddr && accessAbi.length > 0 && web3Reader && <ContractRead web3={web3Reader} scAddr={accessAddr} abi={accessAbi} />
     }

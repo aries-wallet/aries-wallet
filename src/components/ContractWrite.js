@@ -49,7 +49,7 @@ export function ContractWrite(props) {
     return props.abi.filter(v=>!(v.type !== 'function' || v.stateMutability === 'view'));
   }, [props.abi]);
 
-  return <Paper style={{width: '100%', marginTop: "20px", padding: "10px", borderRadius: '10px'}} elevation={0} >
+  return <Paper style={{width: '100%', marginTop: "10px", padding: "10px", borderRadius: '10px'}} elevation={0} >
     <Collapse defaultActiveKey={['1']}>
       {
         abi.map((v, i)=>{
