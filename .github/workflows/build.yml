@@ -55,8 +55,8 @@ jobs:
         with:
           name: aries-wallet-linux
           path: |
-            ./src-tauri/target/release/bundle/appimage/tauri-*.AppImage
-            ./src-tauri/target/release/bundle/deb/tauri-*.deb
+            ./src-tauri/target/release/bundle/appimage/aries-*.AppImage
+            ./src-tauri/target/release/bundle/deb/aries-*.deb
   build-windows:
     # The type of runner that the job will run on
     runs-on: windows-latest
