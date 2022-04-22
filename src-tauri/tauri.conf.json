@@ -1,6 +1,6 @@
 {
   "package": {
-    "productName": "tauri-wallet",
+    "productName": "aries-wallet",
     "version": "0.1.14"
   },
   "build": {
