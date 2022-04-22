@@ -5,6 +5,7 @@ import { Button, Paper, Stack } from "@mui/material";
 import { Collapse } from "antd";
 import { useMemo, useState } from "react";
 import useLog from "../hooks/useLog";
+import { objectToArray } from "./ContractRead";
 
 const { Panel } = Collapse;
 
@@ -27,7 +28,7 @@ function WritePanel(props) {
       }
       <Button style={{width: '120px'}} variant="outlined" size="small" onClick={async ()=>{
         console.log('inputData', inputData);
-        if (Object.values(inputData).length < subAbi.inputs.length) {
+        if (objectToArray(inputData, subAbi.inputs, subAbi.stateMutability === 'payable').length < subAbi.inputs.length) {
           addLog("input params count error");
           return;
         }
@@ -37,7 +38,7 @@ function WritePanel(props) {
           delete params.payable;
         }
 
-        await send(subAbi, Object.values(params), payable);
+        await send(subAbi, objectToArray(params, subAbi.inputs), payable);
       }} >Write</Button>
     </Stack>
   </div>

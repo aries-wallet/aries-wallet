@@ -27,11 +27,11 @@ function ReadPanel(props) {
           console.error(err);
           addLog('ERROR:', err.message);
         });
-      } else if (Object.values(inputData).length > 0) {
-        addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} pending...`);
-        sc.methods[subAbi.name](...Object.values(inputData)).call().then(ret=>{
+      } else if (objectToArray(inputData, subAbi.inputs).length > 0) {
+        addLog(`query sc function ${subAbi.name} with params ${objectToArray(inputData, subAbi.inputs)} pending...`);
+        sc.methods[subAbi.name](...objectToArray(inputData, subAbi.inputs)).call().then(ret=>{
           console.log('ret', ret);
-          addLog(`query sc function ${subAbi.name} with params ${Object.values(inputData)} return`, JSON.stringify(ret));
+          addLog(`query sc function ${subAbi.name} with params ${objectToArray(inputData, subAbi.inputs)} return`, JSON.stringify(ret));
           setOutputData(ret);
         }).catch(err=>{
           console.error(err);
@@ -131,4 +131,17 @@ function abiToUISchema(subAbi) {
     type: 'VerticalLayout',
     elements,
   }
+}
+
+export function objectToArray(object, abi, payable) {
+  let ret = [];
+  abi.map((v,i)=>{
+    ret.push(object[v.name ? v.name : `param${i}`]);
+    return ret;
+  })
+  if (payable) {
+    ret.push(object['payable']);
+  }
+  console.log('objectToArray', object, ret);
+  return ret;
 }
