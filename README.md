@@ -1,4 +1,4 @@
-# Tauri Wallet
+# Aries Wallet
 
 A multi-chain smart contract read/write wallet.
 
