@@ -438,7 +438,7 @@ export function Wallet() {
           <Stack spacing={2}>
             <Stack spacing={2} direction="row">
             <FormControl fullWidth variant="standard">
-              <InputLabel id="select-label">Select Path Rule</InputLabel>
+              <InputLabel id="select-label">Derivation Path</InputLabel>
               <Select labelId="select-label" value={pathRule} onChange={e=>setPathRule(e.target.value)}>
                 <MenuItem value={'metamask'}>MetaMask(m/44’/60’/0’/0)</MenuItem>
                 <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0')</MenuItem>
