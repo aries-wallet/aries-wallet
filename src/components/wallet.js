@@ -47,7 +47,7 @@ export function Wallet() {
     } else {
       setCurrent(getDb().data.walletList[0]);
     }
-    setAccountName('Account ');
+    
     setSchemaAddress({
       type: "string",
       title: "Wallet Address",
@@ -141,6 +141,7 @@ export function Wallet() {
     </Tooltip>
     <Tooltip title="Create Address">
       <IconButton size="small" onClick={e=>{
+        setAccountName(`Account ${getDb().data.walletList.length}`);
         setShowCreateAddress(true);
       }}>
         <AddCard />
@@ -160,6 +161,7 @@ export function Wallet() {
     </Tooltip>
     <Tooltip title="Import Private Key">
       <IconButton size="small" onClick={()=>{
+        setAccountName(`Imported ${getDb().data.walletList.length}`);
         setShowImportPK(true);
       }}>
         <Key />
@@ -167,6 +169,7 @@ export function Wallet() {
     </Tooltip>
     <Tooltip title="Import Keystore File">
       <IconButton size="small" onClick={()=>{
+        setAccountName(`Keystore ${getDb().data.walletList.length}`);
         setShowImportKeystore(true);
       }}>
         <FileOpen />
