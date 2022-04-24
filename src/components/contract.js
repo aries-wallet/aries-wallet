@@ -88,6 +88,7 @@ export function Contract() {
 
         let provider = new HDWalletProvider(pk, rpc.rpcUrl);
         try {
+          addLog(`Sending Transaction call method: ${subAbi.name} with params: ${params}`);
           let web3 = new Web3(provider);
           let sc = new web3.eth.Contract([subAbi], scAddr);
           let nonce = await web3.eth.getTransactionCount(wallet.address);
