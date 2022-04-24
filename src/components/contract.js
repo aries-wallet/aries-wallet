@@ -3,10 +3,10 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 import { Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
-import { AddBox, ContentCopy, DeleteForever, FileCopy } from "@mui/icons-material";
+import { AddBox, ContentCopy, DeleteForever, Explore, FileCopy } from "@mui/icons-material";
 import { MessageBox } from "./message";
 import useContract from "../hooks/useContract";
-import { clipboard, dialog } from "@tauri-apps/api";
+import { clipboard, dialog, shell } from "@tauri-apps/api";
 import useLog from '../hooks/useLog';
 import { ContractRead } from "./ContractRead";
 import useRpc from "../hooks/useRpc";
@@ -155,6 +155,13 @@ export function Contract() {
           setSuccessInfo("Contract Address copied");
         }}>
           <ContentCopy />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="View in Explorer">
+        <IconButton size="small" onClick={()=>{
+          shell.open(`${rpc.explorer}/address/${scAddr}`);
+        }}>
+          <Explore />
         </IconButton>
       </Tooltip>
       <Tooltip title="Add Contract">

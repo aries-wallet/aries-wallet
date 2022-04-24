@@ -2,8 +2,8 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
-import { AddCard, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
+import { AddCard, Cable, CheckBox, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
 import { createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";
@@ -35,6 +35,8 @@ export function Wallet() {
   const [showImportKeystore, setShowImportKeystore] = useState(false);
   const [showSaveKeystore, setShowSaveKeystore] = useState(false);
   const [keystorePath, setKeystorePath] = useState('');
+  const [showLedger, setShowLedger] = useState(false);
+  const [pathRule, setPathRule] = useState('metamask');
 
   useEffect(()=>{
     let list = getDb().data.walletList.map(v=>{
@@ -145,6 +147,13 @@ export function Wallet() {
         setShowCreateAddress(true);
       }}>
         <AddCard />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Connect to Ledger (Hardware Wallet)">
+      <IconButton size="small" onClick={e=>{
+        setShowLedger(true);
+      }}>
+        <Cable />
       </IconButton>
     </Tooltip>
     <Tooltip title="Delete Address">
@@ -419,6 +428,52 @@ export function Wallet() {
             }
           }}>Save As...</Button>
           <Button onClick={()=>setShowSaveKeystore(false)}>Cancel</Button>
+        </DialogActions>
+      </Dialog>
+    }
+    {
+      showLedger && <Dialog open={showLedger} onClose={e=>setShowLedger(false)} fullWidth >
+        <DialogTitle color="white">Connect to Ledger</DialogTitle>
+        <DialogContent style={{padding:"30px"}}>
+          <Stack spacing={2}>
+            <Stack spacing={2} direction="row">
+            <FormControl fullWidth variant="standard">
+              <InputLabel id="select-label">Select Path Rule</InputLabel>
+              <Select labelId="select-label" value={pathRule} onChange={e=>setPathRule(e.target.value)}>
+                <MenuItem value={'metamask'}>MetaMask(m/44’/60’/0’/0)</MenuItem>
+                <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0')</MenuItem>
+              </Select>
+            </FormControl>
+            <Button variant="outlined" >Connect</Button>
+            </Stack>
+            <Paper style={{maxHeight:'300px', overflow:'auto'}}>
+            <List dense>
+              {
+                Array.from({length: 20}, (v,i)=>i).map(v=>{
+                  const labelId = `checkbox-list-label-${v}`;
+                  return <ListItem key={v}>
+                    <ListItemButton dense>
+                      <ListItemIcon>
+                        <CheckBox />
+                      </ListItemIcon>
+                      <ListItemText primary={'Hello ' + v} />
+                    </ListItemButton>
+                  </ListItem>
+                })
+              }
+              
+            </List>
+            <Button fullWidth>Load More</Button>
+            </Paper>
+            
+          </Stack>
+          
+        </DialogContent>
+        <DialogActions style={{padding:"0 30px 30px 30px"}}>
+          <Stack spacing={2} direction="row">
+            <Button onClick={e=>setShowLedger(false)} disabled >Ok</Button>
+            <Button onClick={e=>setShowLedger(false)} >Cancel</Button>
+          </Stack>
         </DialogActions>
       </Dialog>
     }
