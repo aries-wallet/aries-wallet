@@ -22,31 +22,13 @@ fn main() {
   tauri::Builder::default()
     .menu(menu)
     // .invoke_handler(tauri::generate_handler![ledger_get_address])
-    .invoke_handler(tauri::generate_handler![write_report])
+    .invoke_handler(tauri::generate_handler![get_ledger_address])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
 #[tauri::command]
-fn write_report(_app: tauri::AppHandle) -> Result<String, String> {
-  let index: u32 = 0;
-  let is_meta_mask = true;
-  // let future = test(index, is_meta_mask);
+fn get_ledger_address(index: u32, is_meta_mask: bool) -> Result<String, String> {
   let future = my_ledger::get_ledger_address(index, is_meta_mask);
   return block_on(future);
-  // let address = my_ledger::get_ledger_address(index, is_meta_mask).await?;
-  // Ok(ret.to_string())
 }
-
-async fn test(index: u32, is_meta_mask: bool) -> String {
-  println!("hello {} {}", index, is_meta_mask);
-  return "World".to_string();
-}
-
-// #[tauri::command]
-// async fn ledger_get_address(param: String) -> Result<String, String>  {
-//   let index: u32 = 0;
-//   let is_meta_mask = true;
-//   let address = ledger::get_address(index, is_meta_mask).await;
-//   Ok(address)
-// }

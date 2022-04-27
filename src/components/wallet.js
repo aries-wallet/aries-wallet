@@ -1,8 +1,8 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
-import { useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
 import { AddCard, Cable, CheckBox, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
@@ -11,7 +11,8 @@ import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
 import Web3 from 'web3';
-import { testLedger } from "../utils/ledger";
+import { getLedgerAddress, testLedger } from "../utils/ledger";
+import { LoadingButton } from "@mui/lab";
 
 export function Wallet() {
   const [schemaAddress, setSchemaAddress] = useState({
@@ -92,6 +93,16 @@ export function Wallet() {
     getDb().data.current.wallet = newCurrent;
     await getDb().write();
   }
+
+  const [ledgerAddrList, setLedgerAddrList] = useState([]);
+  const [loadingLedger, setLoadingLedger] = useState(false);
+  const addLedgerAddr = useCallback(()=>{
+    return (addr)=>{
+      setLedgerAddrList((pre)=>{
+        return [...pre, addr];
+      })
+    }
+  }, [setLedgerAddrList]);
 
   return <Space >
     <JsonForms
@@ -445,30 +456,47 @@ export function Wallet() {
                 <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0')</MenuItem>
               </Select>
             </FormControl>
-            <Button variant="outlined" onClick={async ()=>{
-              await testLedger();
-            }} >Connect</Button>
+            <LoadingButton loading={loadingLedger} variant="outlined" onClick={async ()=>{
+              // await testLedger();
+              setLedgerAddrList([]);
+              setLoadingLedger(true);
+              addLedgerAddr()(await getLedgerAddress(0));
+              addLedgerAddr()(await getLedgerAddress(1));
+              addLedgerAddr()(await getLedgerAddress(2));
+              addLedgerAddr()(await getLedgerAddress(3));
+              addLedgerAddr()(await getLedgerAddress(4));
+              setLoadingLedger(false);
+            }} >Connect</LoadingButton>
             </Stack>
             <Paper style={{maxHeight:'300px', overflow:'auto'}}>
             <List dense>
               {
-                Array.from({length: 20}, (v,i)=>i).map(v=>{
+                ledgerAddrList.map((v, i)=>{
                   const labelId = `checkbox-list-label-${v}`;
                   return <ListItem key={labelId}>
                     <ListItemButton dense>
                       <ListItemIcon>
                         <CheckBox />
                       </ListItemIcon>
-                      <ListItemText primary={'Hello ' + v} />
+                      <ListItemText primary={`${i}. ${v}`} />
                     </ListItemButton>
                   </ListItem>
                 })
               }
-              
             </List>
-            <Button fullWidth>Load More</Button>
+            {
+              ledgerAddrList.length > 0 && <LoadingButton loading={loadingLedger} fullWidth onClick={async ()=>{
+                let length = ledgerAddrList.length;
+                setLoadingLedger(true);
+                addLedgerAddr()(await getLedgerAddress(length));
+                addLedgerAddr()(await getLedgerAddress(length + 1));
+                addLedgerAddr()(await getLedgerAddress(length + 2));
+                addLedgerAddr()(await getLedgerAddress(length + 3));
+                addLedgerAddr()(await getLedgerAddress(length + 4));
+                setLoadingLedger(false);
+              }}>Load More</LoadingButton>
+            }
             </Paper>
-            
           </Stack>
           
         </DialogContent>
