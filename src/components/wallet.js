@@ -2,7 +2,7 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
 import { AddCard, Cable, CheckBox, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
@@ -11,7 +11,7 @@ import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
 import Web3 from 'web3';
-import { getLedgerAddress, testLedger } from "../utils/ledger";
+import { getLedgerAddress } from "../utils/ledger";
 import { LoadingButton } from "@mui/lab";
 
 export function Wallet() {
