@@ -11,6 +11,7 @@ import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
 import Web3 from 'web3';
+import { testLedger } from "../utils/ledger";
 
 export function Wallet() {
   const [schemaAddress, setSchemaAddress] = useState({
@@ -444,14 +445,16 @@ export function Wallet() {
                 <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0')</MenuItem>
               </Select>
             </FormControl>
-            <Button variant="outlined" >Connect</Button>
+            <Button variant="outlined" onClick={async ()=>{
+              await testLedger();
+            }} >Connect</Button>
             </Stack>
             <Paper style={{maxHeight:'300px', overflow:'auto'}}>
             <List dense>
               {
                 Array.from({length: 20}, (v,i)=>i).map(v=>{
                   const labelId = `checkbox-list-label-${v}`;
-                  return <ListItem key={v}>
+                  return <ListItem key={labelId}>
                     <ListItemButton dense>
                       <ListItemIcon>
                         <CheckBox />
