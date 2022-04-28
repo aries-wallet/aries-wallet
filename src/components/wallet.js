@@ -3,16 +3,18 @@ import { materialCells, materialRenderers } from "@jsonforms/material-renderers"
 import { message, Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
-import { AddCard, Cable, ContentCopy, DeleteForever, Download, Edit, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
+import { AddCard, Cable, ContentCopy, DeleteForever, Download, Edit, Explore, FileOpen, Key, LockOpen, Send } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
-import { changeAddressName, createAddress, decryptWithPwd, encrypt, importAccount, importLedgerAccount } from "../utils/crypto";
+import { changeAddressName, createAddress, decrypt, decryptWithPwd, encrypt, importAccount, importLedgerAccount } from "../utils/crypto";
 import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
 import Web3 from 'web3';
 import { getLedgerAddress } from "../utils/ledger";
 import { LoadingButton } from "@mui/lab";
+import HDWalletProvider from "@truffle/hdwallet-provider";
+import BigNumber from 'bignumber.js';
 
 export function Wallet() {
   const [schemaAddress, setSchemaAddress] = useState({
@@ -21,6 +23,9 @@ export function Wallet() {
   });
   const [showCreateAddress, setShowCreateAddress] = useState(false);
   const [showEditAccount, setShowEditAccount] = useState(false);
+  const [showSendCoin, setShowSendCoin] = useState(false);
+  const [sendTo, setSendTo] = useState('');
+  const [sendValue, setSendValue] = useState('');
   const [accountName, setAccountName] = useState('');
   const {addLog} = useLog();
   const [reload, setReload] = useState(0);
@@ -172,6 +177,13 @@ export function Wallet() {
         <Explore />
       </IconButton>
     </Tooltip>
+    <Tooltip title="Send Coin">
+      <IconButton size="small" onClick={()=>{
+        setShowSendCoin(true);
+      }}>
+        <Send />
+      </IconButton>
+    </Tooltip>
     <Tooltip title="Edit Account Name">
       <IconButton size="small" onClick={()=>{
         setAccountName(getDb().data.current.wallet.name);
@@ -301,6 +313,67 @@ export function Wallet() {
         }}>Confirm</Button>
         <Button variant="outlined" onClick={e=>{
           setShowEditAccount(false)
+        }}>Cancel</Button>
+        </DialogActions>
+      </DialogContent>
+    </Dialog>
+    <Dialog
+      open={showSendCoin}
+      fullWidth
+      onClose={()=>{setShowSendCoin(false)}}
+    >
+      <DialogTitle style={{color: 'white'}}>Send Coin to Address</DialogTitle>
+      <DialogContent 
+      >
+        <JsonForms 
+          data={sendTo}
+          fullWidth
+          onChange={v=>setSendTo(v.data)}
+          schema={{
+            type: 'string',
+            title: 'Please Enter to Address',
+          }}
+          renderers={materialRenderers}
+          cells={materialCells}
+        />
+        <p></p>
+        <JsonForms 
+          data={sendValue}
+          fullWidth
+          onChange={v=>setSendValue(v.data)}
+          schema={{
+            type: 'string',
+            title: 'Please Enter Amount in ETH',
+          }}
+          renderers={materialRenderers}
+          cells={materialCells}
+        />
+        <p></p>
+        <DialogActions style={{width: '100%', justifyContent: 'center'}}>
+        <LoadingButton loading={loadingLedger} variant="contained" onClick={async ()=>{
+          let pk = getDb().data.current.wallet.pk;
+          if (pk.includes('metamask') || pk.includes('wanmask')) {
+            setErrorInfo("Ledger not support yet");
+            return;
+          }
+          setLoadingLedger(true);
+          let provider = new HDWalletProvider(decrypt(pk), rpc.rpcUrl);
+          try {
+            let web3 = new Web3(provider);
+            let tx = await web3.eth.sendTransaction({from: current.address, to: sendTo, value: '0x' + (new BigNumber(sendValue)).multipliedBy(1e18).toString(16).split('.')[0]});
+            addLog("Send tx", tx.transactionHash, tx.status);
+          } catch (error) {
+            console.error(error);
+            addLog("Send error", error.message);
+          } finally {
+            provider.engine.stop();
+            setLoadingLedger(false);
+            setShowSendCoin(false);
+          }
+
+        }}>Send</LoadingButton>
+        <Button disabled={loadingLedger} variant="outlined" onClick={e=>{
+          setShowSendCoin(false);
         }}>Cancel</Button>
         </DialogActions>
       </DialogContent>
