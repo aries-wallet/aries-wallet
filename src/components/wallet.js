@@ -2,11 +2,11 @@ import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
 import { message, Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
-import { AddCard, Cable, CheckBox, ContentCopy, DeleteForever, Download, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
+import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, IconButton, InputLabel, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, Paper, Select, Stack, TextField, Tooltip } from "@mui/material";
+import { AddCard, Cable, ContentCopy, DeleteForever, Download, Edit, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
-import { createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";
+import { changeAddressName, createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";
 import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
@@ -20,6 +20,7 @@ export function Wallet() {
     title: "Wallet Address"
   });
   const [showCreateAddress, setShowCreateAddress] = useState(false);
+  const [showEditAccount, setShowEditAccount] = useState(false);
   const [accountName, setAccountName] = useState('');
   const {addLog} = useLog();
   const [reload, setReload] = useState(0);
@@ -104,6 +105,22 @@ export function Wallet() {
     }
   }, [setLedgerAddrList]);
 
+  const [checked, setChecked] = useState([]);
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    console.log('value', value, currentIndex);
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
+
   return <Space >
     <JsonForms
       renderers={materialRenderers}
@@ -144,6 +161,14 @@ export function Wallet() {
         shell.open(`${rpc.explorer}/address/${current.address}`);
       }}>
         <Explore />
+      </IconButton>
+    </Tooltip>
+    <Tooltip title="Edit Account Name">
+      <IconButton size="small" onClick={()=>{
+        setAccountName(getDb().data.current.wallet.name);
+        setShowEditAccount(true);
+      }}>
+        <Edit />
       </IconButton>
     </Tooltip>
     <Tooltip title="Copy Private Key">
@@ -231,6 +256,42 @@ export function Wallet() {
         }}>Create</Button>
         <Button variant="outlined" onClick={e=>{
           setShowCreateAddress(false)
+        }}>Cancel</Button>
+        </DialogActions>
+      </DialogContent>
+    </Dialog>
+    <Dialog
+      open={showEditAccount}
+      onClose={()=>{setShowEditAccount(false)}}
+    >
+      <DialogTitle style={{color: 'white'}}>Edit Account Name</DialogTitle>
+      <DialogContent 
+      >
+        <JsonForms 
+          data={accountName}
+          onChange={v=>setAccountName(v.data)}
+          schema={{
+            type: 'string',
+            title: 'Please Enter Account Name',
+          }}
+          renderers={materialRenderers}
+          cells={materialCells}
+        />
+        <p></p>
+        <DialogActions style={{width: '100%', justifyContent: 'center'}}>
+        <Button variant="contained" onClick={async ()=>{
+          let oldName = current.name;
+          let id = await changeAddressName(current.address, accountName);
+          setReload(Date.now());
+          await setCurrentInDb(getDb().data.walletList[0]);
+          setReload(Date.now());
+          await setCurrentInDb(getDb().data.walletList[id]);
+          setReload(Date.now());
+          addLog(`Change account name from ${oldName} to ${getDb().data.current.wallet.name}`);
+          setShowEditAccount(false);
+        }}>Confirm</Button>
+        <Button variant="outlined" onClick={e=>{
+          setShowEditAccount(false)
         }}>Cancel</Button>
         </DialogActions>
       </DialogContent>
@@ -460,23 +521,34 @@ export function Wallet() {
               // await testLedger();
               setLedgerAddrList([]);
               setLoadingLedger(true);
-              addLedgerAddr()(await getLedgerAddress(0));
-              addLedgerAddr()(await getLedgerAddress(1));
-              addLedgerAddr()(await getLedgerAddress(2));
-              addLedgerAddr()(await getLedgerAddress(3));
-              addLedgerAddr()(await getLedgerAddress(4));
+              for (let i=0; i<5; i++) {
+                let addr = await getLedgerAddress(i);
+                if (addr && addr.length > 20) {
+                  addLedgerAddr()(addr);
+                } else {
+                  setErrorInfo("Connect Ledger failed");
+                }
+              }
               setLoadingLedger(false);
             }} >Connect</LoadingButton>
             </Stack>
-            <Paper style={{maxHeight:'300px', overflow:'auto'}}>
+            <Paper style={{maxHeight:'330px', overflow:'auto'}}>
             <List dense>
               {
                 ledgerAddrList.map((v, i)=>{
                   const labelId = `checkbox-list-label-${v}`;
-                  return <ListItem key={labelId}>
-                    <ListItemButton dense>
+                  return <ListItem key={v}>
+                    <ListItemButton dense role={undefined} onClick={handleToggle(v)}>
                       <ListItemIcon>
-                        <CheckBox />
+                        <Checkbox 
+                          dense
+                          size="small"
+                          checked={checked.indexOf(v) !== -1} 
+                          disableRipple
+                          edge="start" 
+                          tabIndex={-1}
+                          inputProps={{ 'aria-labelledby': labelId }}
+                        />
                       </ListItemIcon>
                       <ListItemText primary={`${i}. ${v}`} />
                     </ListItemButton>
@@ -488,11 +560,12 @@ export function Wallet() {
               ledgerAddrList.length > 0 && <LoadingButton loading={loadingLedger} fullWidth onClick={async ()=>{
                 let length = ledgerAddrList.length;
                 setLoadingLedger(true);
-                addLedgerAddr()(await getLedgerAddress(length));
-                addLedgerAddr()(await getLedgerAddress(length + 1));
-                addLedgerAddr()(await getLedgerAddress(length + 2));
-                addLedgerAddr()(await getLedgerAddress(length + 3));
-                addLedgerAddr()(await getLedgerAddress(length + 4));
+                for (let i=0; i<5; i++) {
+                  let addr = await getLedgerAddress(length + i);
+                  if (addr && addr.length > 20) {
+                    addLedgerAddr()(addr);
+                  }
+                }
                 setLoadingLedger(false);
               }}>Load More</LoadingButton>
             }

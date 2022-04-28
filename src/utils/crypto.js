@@ -59,6 +59,13 @@ export async function createAddress(name) {
   await getDb().write();
 }
 
+export async function changeAddressName(address, name) {
+  let id = getDb().data.walletList.findIndex(v=>v.address === address);
+  getDb().data.walletList[id].name = name;
+  await getDb().write();
+  return id;
+}
+
 export async function importAccount(account) {
   getDb().data.walletList.push(account);
   await getDb().write();
