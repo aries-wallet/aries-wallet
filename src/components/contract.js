@@ -84,6 +84,10 @@ export function Contract() {
         }
 
         let wallet = getDb().data.current.wallet;
+        if (wallet.pk.includes('metamask') || wallet.pk.includes('wanmask')) {
+          setErrorInfo("Ledger not support");
+          return;
+        }
         let pk = decrypt(wallet.pk);
 
         let provider = new HDWalletProvider(pk, rpc.rpcUrl);

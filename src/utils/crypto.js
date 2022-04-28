@@ -69,5 +69,13 @@ export async function changeAddressName(address, name) {
 export async function importAccount(account) {
   getDb().data.walletList.push(account);
   await getDb().write();
-  
+}
+
+export async function importLedgerAccount(address, pathRule, index) {
+  getDb().data.walletList.push({
+    name: `Ledger ${getDb().data.walletList.length}`,
+    address,
+    pk: `${pathRule}_${index}`
+  });
+  await getDb().write();
 }

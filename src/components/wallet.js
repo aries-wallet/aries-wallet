@@ -6,7 +6,7 @@ import { Button, Checkbox, Dialog, DialogActions, DialogContent, DialogContentTe
 import { AddCard, Cable, ContentCopy, DeleteForever, Download, Edit, Explore, FileOpen, Key, LockOpen } from "@mui/icons-material";
 import { getDb } from "../utils/db";
 import useLog from "../hooks/useLog";
-import { changeAddressName, createAddress, decryptWithPwd, encrypt, importAccount } from "../utils/crypto";
+import { changeAddressName, createAddress, decryptWithPwd, encrypt, importAccount, importLedgerAccount } from "../utils/crypto";
 import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
@@ -106,11 +106,18 @@ export function Wallet() {
   }, [setLedgerAddrList]);
 
   const [checked, setChecked] = useState([]);
+
+  const walletList = getDb().data.walletList.map(v=>{
+    return v.address;
+  });
+
   const handleToggle = (value) => () => {
+    if (walletList.includes(value)) {
+      return;
+    }
+    
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
-
-    console.log('value', value, currentIndex);
 
     if (currentIndex === -1) {
       newChecked.push(value);
@@ -120,6 +127,8 @@ export function Wallet() {
 
     setChecked(newChecked);
   };
+
+
 
   return <Space >
     <JsonForms
@@ -541,9 +550,10 @@ export function Wallet() {
                     <ListItemButton dense role={undefined} onClick={handleToggle(v)}>
                       <ListItemIcon>
                         <Checkbox 
+                          disabled={walletList.includes(v)}
                           dense
                           size="small"
-                          checked={checked.indexOf(v) !== -1} 
+                          checked={checked.indexOf(v) !== -1 || walletList.includes(v)} 
                           disableRipple
                           edge="start" 
                           tabIndex={-1}
@@ -575,7 +585,18 @@ export function Wallet() {
         </DialogContent>
         <DialogActions style={{padding:"0 30px 30px 30px"}}>
           <Stack spacing={2} direction="row">
-            <Button onClick={e=>setShowLedger(false)} disabled >Ok</Button>
+            <Button onClick={async ()=>{
+              console.log('checked', checked, pathRule);
+              for (let i=0; i<checked.length; i++) {
+                await importLedgerAccount(checked[i], pathRule, ledgerAddrList.indexOf(checked[i]));
+                addLog('import Ledger account', checked[i]);
+              }
+
+              await setCurrentInDb(getDb().data.walletList[getDb().data.walletList.length - 1]);
+              setReload(Date.now());
+              setChecked([]);
+              setShowLedger(false);
+            }} disabled={checked.length === 0} >Ok</Button>
             <Button onClick={e=>setShowLedger(false)} >Cancel</Button>
           </Stack>
         </DialogActions>
