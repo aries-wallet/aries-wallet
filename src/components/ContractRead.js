@@ -136,7 +136,13 @@ function abiToUISchema(subAbi) {
 export function objectToArray(object, abi, payable) {
   let ret = [];
   abi.map((v,i)=>{
-    ret.push(object[v.name ? v.name : `param${i}`]);
+    let obj = object[v.name ? v.name : `param${i}`];
+    try {
+      obj = JSON.parse(obj);
+    } catch {
+
+    }
+    ret.push(obj);
     return ret;
   })
   if (payable) {

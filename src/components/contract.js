@@ -96,6 +96,7 @@ export function Contract() {
           let web3 = new Web3(provider);
           let sc = new web3.eth.Contract([subAbi], scAddr);
           let nonce = await web3.eth.getTransactionCount(wallet.address);
+          console.log('params', params);
           let tx = await sc.methods[subAbi.name](...params).send({from: wallet.address, value: payableValue ? payableValue : 0, nonce: `0x${nonce.toString(16)}`});
           if (tx && tx.status) {
             addLog('Transaction Hash:', tx.transactionHash);
