@@ -87,10 +87,6 @@ export function Contract() {
 
         let wallet = getDb().data.current.wallet;
         if (wallet.pk.includes('metamask') || wallet.pk.includes('wanmask')) {
-          if (wallet.pk.includes('wanmask')) {
-            setErrorInfo("WanMask Ledger not support yet :)");
-            return;
-          }
           let [pathRule, index] = wallet.pk.split('_');
           let web3 = new Web3();
           let sc = new web3.eth.Contract([subAbi], scAddr);
@@ -99,7 +95,7 @@ export function Contract() {
 
           message.info("Please confirm in your Ledger");
 
-          let tx = await sendTx(index, rpc.rpcUrl, scAddr, payableValue ? Web3.utils.fromWei(payableValue) : 0, data.slice(2));
+          let tx = await sendTx(index, rpc.rpcUrl, scAddr, payableValue ? Web3.utils.fromWei(payableValue) : 0, data.slice(2), wallet.pk.includes('metamask'));
           console.log('tx', pathRule, tx);
           if (tx && tx.length > 32) {
             addLog('Transaction Hash:', tx);

@@ -1,16 +1,17 @@
 import { invoke } from '@tauri-apps/api/tauri';
 
-export async function getLedgerAddress(index) {
+export async function getLedgerAddress(index, isMetaMask) {
   try {
+    console.log('getLedgerAddress', index, isMetaMask);
     return await invoke('get_ledger_address', {index, isMetaMask: true});
   } catch (err) {
     console.error(err);
   }
 }
 
-export async function sendTx(index, rpcUrl, to, value, data) {
+export async function sendTx(index, rpcUrl, to, value, data, isMetaMask) {
   try {
-    let txHash = await invoke('send_tx', {index: Number(index), isMetaMask: true, rpcUrl, to, value: value.toString(), data });
+    let txHash = await invoke('send_tx', {index: Number(index), isMetaMask, rpcUrl, to, value: value.toString(), data });
     return '0x' + txHash;
   } catch (err) {
     console.error(err);

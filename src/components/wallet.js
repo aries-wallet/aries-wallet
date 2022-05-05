@@ -353,13 +353,9 @@ export function Wallet() {
         <LoadingButton loading={loadingLedger} variant="contained" onClick={async ()=>{
           let pk = getDb().data.current.wallet.pk;
           if (pk.includes('metamask') || pk.includes('wanmask')) {
-            if (pk.includes('wanmask')) {
-              setErrorInfo("WanMask Ledger not support yet :)");
-              return;
-            }
             message.info("Please confirm in your Ledger");
             let [pathRule, index] = pk.split('_');
-            let tx = await sendTx(index, rpc.rpcUrl, sendTo, sendValue ? sendValue.toString() : 0, '');
+            let tx = await sendTx(index, rpc.rpcUrl, sendTo, sendValue ? sendValue.toString() : 0, '', pk.includes('metamask'));
             console.log('tx', pathRule, tx);
             if (tx && tx.length > 32) {
               addLog('Transaction Hash:', tx);
@@ -609,7 +605,7 @@ export function Wallet() {
               <InputLabel id="select-label">Derivation Path</InputLabel>
               <Select labelId="select-label" value={pathRule} onChange={e=>setPathRule(e.target.value)}>
                 <MenuItem value={'metamask'}>MetaMask(m/44’/60’/0’/0)</MenuItem>
-                <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0')</MenuItem>
+                <MenuItem value={'wanmask'}>WanMask(m/44'/5718350'/0'/0)</MenuItem>
               </Select>
             </FormControl>
             <LoadingButton loading={loadingLedger} variant="outlined" onClick={async ()=>{
@@ -617,7 +613,7 @@ export function Wallet() {
               setLedgerAddrList([]);
               setLoadingLedger(true);
               for (let i=0; i<5; i++) {
-                let addr = await getLedgerAddress(i);
+                let addr = await getLedgerAddress(i, pathRule === 'metamask');
                 if (addr && addr.length > 20) {
                   addLedgerAddr()(addr);
                 } else {
