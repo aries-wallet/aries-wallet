@@ -79,7 +79,7 @@ pub async fn send_tx(index: u32, is_meta_mask: bool, rpc_url: String, to: String
     }
   } else {
     let path = format!("m/44'/5718350'/0'/{}", index);
-    let ledger = Ledger::new(HDPath::Other(path), 1).await?;
+    let ledger = Ledger::new(HDPath::Other(path), chain_id.try_into().unwrap()).await?;
     println!("from addr: {:?}", ledger.address());
     let client = ethers::middleware::SignerMiddleware::new(provider, ledger);
 

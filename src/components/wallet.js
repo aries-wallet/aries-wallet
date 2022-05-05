@@ -653,7 +653,7 @@ export function Wallet() {
                 let length = ledgerAddrList.length;
                 setLoadingLedger(true);
                 for (let i=0; i<5; i++) {
-                  let addr = await getLedgerAddress(length + i);
+                  let addr = await getLedgerAddress(length + i, pathRule === 'metamask');
                   if (addr && addr.length > 20) {
                     addLedgerAddr()(addr);
                   }

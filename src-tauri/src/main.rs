@@ -21,9 +21,7 @@ fn main() {
 
   tauri::Builder::default()
     .menu(menu)
-    // .invoke_handler(tauri::generate_handler![ledger_get_address])
-    .invoke_handler(tauri::generate_handler![get_ledger_address])
-    .invoke_handler(tauri::generate_handler![send_tx])
+    .invoke_handler(tauri::generate_handler![get_ledger_address, send_tx])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
