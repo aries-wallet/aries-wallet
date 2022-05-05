@@ -12,14 +12,15 @@ rust-version = "1.57"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { version = "1.0.0-rc.5", features = [] }
+tauri-build = { version = "1.0.0-rc.7", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.0.0-rc.5", features = ["api-all"] }
-ethers-core = "0.2.2"
-ethers-signers = { version="0.2.2", features= ["ledger"] }
+tauri = { version = "1.0.0-rc.8", features = ["api-all"] }
+
+ethers = { git = "https://github.com/gakonst/ethers-rs", features = ["ledger"] }
+
 hex = "0.4.3"
 anyhow = "1.0"
 
@@ -31,8 +32,3 @@ default = [ "custom-protocol"]
 # DO NOT remove this
 custom-protocol = [ "tauri/custom-protocol" ]
 
-[profile.dev]
-panic = "unwind"
-
-[profile.release]
-panic = "unwind"

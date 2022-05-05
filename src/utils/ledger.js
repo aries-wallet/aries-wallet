@@ -7,3 +7,12 @@ export async function getLedgerAddress(index) {
     console.error(err);
   }
 }
+
+export async function sendTx(index, rpcUrl, to, value, data) {
+  try {
+    let txHash = await invoke('send_tx', {index: Number(index), isMetaMask: true, rpcUrl, to, value: value.toString(), data });
+    return '0x' + txHash;
+  } catch (err) {
+    console.error(err);
+  }
+}

@@ -11,7 +11,7 @@ import { clipboard, dialog, fs, path, shell } from "@tauri-apps/api";
 import { MessageBox } from './message';
 import useRpc from '../hooks/useRpc';
 import Web3 from 'web3';
-import { getLedgerAddress } from "../utils/ledger";
+import { getLedgerAddress, sendTx } from "../utils/ledger";
 import { LoadingButton } from "@mui/lab";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import BigNumber from 'bignumber.js';
@@ -353,7 +353,20 @@ export function Wallet() {
         <LoadingButton loading={loadingLedger} variant="contained" onClick={async ()=>{
           let pk = getDb().data.current.wallet.pk;
           if (pk.includes('metamask') || pk.includes('wanmask')) {
-            setErrorInfo("Ledger not support yet");
+            if (pk.includes('wanmask')) {
+              setErrorInfo("WanMask Ledger not support yet :)");
+              return;
+            }
+            message.info("Please confirm in your Ledger");
+            let [pathRule, index] = pk.split('_');
+            let tx = await sendTx(index, rpc.rpcUrl, sendTo, sendValue ? sendValue.toString() : 0, '');
+            console.log('tx', pathRule, tx);
+            if (tx && tx.length > 32) {
+              addLog('Transaction Hash:', tx);
+              setSuccessInfo(`Send Tx successed, tx hash: ${tx}`);
+            } else {
+              setErrorInfo("Send Tx Failed");
+            }
             return;
           }
           setLoadingLedger(true);

@@ -1,6 +1,6 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialCells, materialRenderers } from "@jsonforms/material-renderers";
-import { Space } from "antd";
+import { message, Space } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, Tooltip } from "@mui/material";
 import { AddBox, ContentCopy, DeleteForever, Explore, FileCopy } from "@mui/icons-material";
@@ -15,6 +15,7 @@ import { ContractWrite } from "./ContractWrite";
 import HDWalletProvider from "@truffle/hdwallet-provider";
 import { getDb } from "../utils/db";
 import { decrypt } from "../utils/crypto";
+import { sendTx } from "../utils/ledger";
 
 
 const schemaSCAddress = {
@@ -83,14 +84,35 @@ export function Contract() {
           return;
         }
 
+
         let wallet = getDb().data.current.wallet;
         if (wallet.pk.includes('metamask') || wallet.pk.includes('wanmask')) {
-          setErrorInfo("Ledger not support");
+          if (wallet.pk.includes('wanmask')) {
+            setErrorInfo("WanMask Ledger not support yet :)");
+            return;
+          }
+          let [pathRule, index] = wallet.pk.split('_');
+          let web3 = new Web3();
+          let sc = new web3.eth.Contract([subAbi], scAddr);
+
+          let data = sc.methods[subAbi.name](...params).encodeABI();
+
+          message.info("Please confirm in your Ledger");
+
+          let tx = await sendTx(index, rpc.rpcUrl, scAddr, payableValue ? Web3.utils.fromWei(payableValue) : 0, data.slice(2));
+          console.log('tx', pathRule, tx);
+          if (tx && tx.length > 32) {
+            addLog('Transaction Hash:', tx);
+            setSuccessInfo(`Send Tx successed, tx hash: ${tx}`);
+          } else {
+            setErrorInfo("Send Tx Failed");
+          }
           return;
         }
         let pk = decrypt(wallet.pk);
 
         let provider = new HDWalletProvider(pk, rpc.rpcUrl);
+
         try {
           addLog(`Sending Transaction call method: ${subAbi.name} with params: ${params}`);
           let web3 = new Web3(provider);
@@ -100,7 +122,7 @@ export function Contract() {
           let tx = await sc.methods[subAbi.name](...params).send({from: wallet.address, value: payableValue ? payableValue : 0, nonce: `0x${nonce.toString(16)}`});
           if (tx && tx.status) {
             addLog('Transaction Hash:', tx.transactionHash);
-            setSuccessInfo("Send Tx successed");
+            setSuccessInfo(`Send Tx successed, tx hash: ${tx.transactionHash}`);
           } else {
             setErrorInfo("Send Tx Failed");
           }
