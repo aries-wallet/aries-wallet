@@ -353,6 +353,7 @@ export function Wallet() {
         <LoadingButton loading={loadingLedger} variant="contained" onClick={async ()=>{
           let pk = getDb().data.current.wallet.pk;
           if (pk.includes('metamask') || pk.includes('wanmask')) {
+            setLoadingLedger(true);
             message.info("Please confirm in your Ledger");
             let [pathRule, index] = pk.split('_');
             let tx = await sendTx(index, rpc.rpcUrl, sendTo, sendValue ? sendValue.toString() : 0, '', pk.includes('metamask'));
@@ -363,6 +364,8 @@ export function Wallet() {
             } else {
               setErrorInfo("Send Tx Failed");
             }
+            setLoadingLedger(false);
+            setShowSendCoin(false);
             return;
           }
           setLoadingLedger(true);
