@@ -1,6 +1,6 @@
 [package]
 name = "app"
-version = "0.4.2"
+version = "0.4.3"
 description = "Cross-platform blockchain wallet support multi-chain EVM compatible smart contract read/write"
 authors = ["lolieatapple"]
 license = "MIT"
