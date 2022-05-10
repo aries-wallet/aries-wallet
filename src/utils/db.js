@@ -29,7 +29,7 @@ const dbModal = {
     },
     {
       name: 'Rinkeby Testnet',
-      rpcUrl: 'https://eth.getblock.io/rinkeby/?api_key=8773b6c9-c907-4637-9109-50955eb35651',
+      rpcUrl: 'https://rinkeby.infura.io/v3/0a751fa7c30445c0ac7e8b30335d967e',
       explorer: 'https://rinkeby.etherscan.io/'
     },
     {
